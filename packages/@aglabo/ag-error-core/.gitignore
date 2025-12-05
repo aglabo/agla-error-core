@@ -1,0 +1,71 @@
+# src: .gitignore
+# @(#) : typescript compile settings
+#
+# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
+#
+# This software is released under the MIT License.
+# https://opensource.org/licenses/MIT
+
+##		General
+#	OS specific files
+.DS_Store
+thumbs.db
+
+#	logs, patches
+*.log
+*.diff
+*.patch
+
+# 	history, cache
+.history/
+.cache/
+**/*cache
+
+#	backup/swap/temp
+$~*
+~*
+*~
+*tmp
+*swp
+*lock
+
+## temporary directory
+**/temp/
+**/tmp/
+
+##		Editor
+#	VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+!.vscode/cspell*
+!.vscode/*.md
+
+###	AI Agent
+# claude code
+**/.claude/*
+.claude/*
+!.claude/commands
+!.claude/commands/*
+
+# CLAUDE Memory file
+!CLAUDE*.md
+!AGENTS.md
+
+## mcp settings/server's config
+!.mcp.json
+# mcp server's folder
+.serena/
+.lsmcp
+
+
+### Develop
+# Node
+# Node.js / JS project ignores
+# Output directory
+dist
+module
+lib

@@ -1,5 +1,24 @@
 {
-  "_comment": "@(#) : Shared base script definitions for ESTA packages",
+  "name": "@aglabo/agla-error-core",
+  "_comment": "@(#) AglaError: standardized error handling with AglaError class and ErrorSeverity enum",
+  "version": "0.1.0",
+  "description": "AglaError class and ErrorSeverity enum for standardized error handling",
+  "author": "atsushifx <https://github.com/atsushifx>",
+  "license": "MIT",
+  "type": "module",
+  "main": "./module/index.js",
+  "types": "./module/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./module/index.js",
+      "types": "./module/index.d.ts",
+      "require": "./lib/index.cjs"
+    }
+  },
+  "files": [
+    "lib",
+    "module"
+  ],
   "scripts": {
     "clean": "pnpm rimraf dist modules libs .cache",
     "format:dprint": "dprint fmt",
@@ -21,5 +40,7 @@
     "test:runtime:deno": "deno test src/**/__tests__/runtime/deno/*.spec.ts",
     "test:runtime:bun": "bun test ./src/__tests__/runtime/bun/",
     "sync:configs": "pnpm -w run sync:configs "
-  }
+  },
+  "dependencies": {},
+  "devDependencies": {}
 }
