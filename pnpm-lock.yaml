@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@commitlint/types':
-        specifier: ^20.0.0
-        version: 20.0.0
+        specifier: ^20.2.0
+        version: 20.2.0
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.1
@@ -33,7 +33,7 @@ importers:
         specifier: ^9.2.1
         version: 9.2.1
       esbuild:
-        specifier: ^0.27.0
+        specifier: ^0.27.1
         version: 0.27.1
       eslint:
         specifier: ^9.39.1
@@ -66,12 +66,12 @@ importers:
         specifier: ^4.0.15
         version: 4.0.15(@types/node@24.10.1)(tsx@4.21.0)
 
-  packages/@aglabo/ag-error-core: {}
+  packages/@aglabo/agla-error-core: {}
 
 packages:
 
-  '@commitlint/types@20.0.0':
-    resolution: {integrity: sha512-bVUNBqG6aznYcYjTjnc3+Cat/iBgbgpflxbIBTnsHTX0YVpnmINPEkSRWymT2Q8aSH3Y7aKnEbunilkYe8TybA==}
+  '@commitlint/types@20.2.0':
+    resolution: {integrity: sha512-KTy0OqRDLR5y/zZMnizyx09z/rPlPC/zKhYgH8o/q6PuAjoQAKlRfY4zzv0M64yybQ//6//4H1n14pxaLZfUnA==}
     engines: {node: '>=v18'}
 
   '@emnapi/core@1.7.1':
@@ -2074,7 +2074,7 @@ packages:
 
 snapshots:
 
-  '@commitlint/types@20.0.0':
+  '@commitlint/types@20.2.0':
     dependencies:
       '@types/conventional-commits-parser': 5.0.2
       chalk: 5.6.2
