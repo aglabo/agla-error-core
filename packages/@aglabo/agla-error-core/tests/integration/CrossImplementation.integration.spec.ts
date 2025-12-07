@@ -10,10 +10,10 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { AglaError } from '../../shared/types/AglaError.types.js';
+import { AglaError } from '@shared/types/AglaError.types';
 
 // Test utilities
-import { TestAglaError } from '../../src/__tests__/helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 /**
  * Cross-implementation compatibility integration tests
@@ -40,7 +40,7 @@ describe('Cross Implementation Compatibility', () => {
       expect(consumer(err)).toBe(true);
       const json = err.toJSON();
       expect(json).toHaveProperty('errorType', 'X_IMPL');
-      expect(json).toHaveProperty('message', 'cross impl');
+      expect(json).toHaveProperty('message', '[TEST] cross impl');
     });
 
     it('rejects non-conforming shape (missing errorType in toJSON)', () => {

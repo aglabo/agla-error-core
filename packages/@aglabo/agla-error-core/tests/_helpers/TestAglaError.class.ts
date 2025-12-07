@@ -7,17 +7,19 @@
 // https://opensource.org/licenses/MIT
 
 // Type definitions
-import { AglaError, type AglaErrorOptions } from '../../../shared/types/AglaError.types';
+import type { AglaErrorOptions } from '@shared/types/AglaError.types';
+import { AglaError } from '@shared/types/AglaError.types';
 
 /**
  * Test utility class extending AglaError for testing purposes.
- * Provides concrete implementation of the abstract AglaError class with test-specific functionality.
+ * Provides concrete implementation with [TEST] prefix for test identification.
  */
 export class TestAglaError extends AglaError {
   /**
    * Creates a new TestAglaError instance for testing.
+   * Automatically adds [TEST] prefix to message for test identification.
    * @param errorType - The error type identifying the specific type of error
-   * @param message - The human-readable error message
+   * @param message - The human-readable error message (without [TEST] prefix)
    * @param options - Optional configuration including code, severity, timestamp, and context
    */
   constructor(
@@ -25,19 +27,9 @@ export class TestAglaError extends AglaError {
     message: string,
     options?: AglaErrorOptions,
   ) {
-    super(errorType, message, options);
-  }
-
-  /**
-   * Overrides chain method to add custom message formatting.
-   * Adds "[TEST]" prefix to demonstrate inheritance type safety.
-   */
-  chain(cause: Error): this {
-    // 親クラスのchain処理を先に呼び出し（cause部分を追加）
-    super.chain(cause);
-    // その後でカスタムフォーマットを適用
-    this.message = `[TEST] ${this.message}`;
-    return this;
+    // Only add [TEST] if not already present
+    const finalMessage = message.startsWith('[TEST]') ? message : `[TEST] ${message}`;
+    super(errorType, finalMessage, options);
   }
 }
 

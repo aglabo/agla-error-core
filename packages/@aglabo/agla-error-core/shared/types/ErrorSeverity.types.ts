@@ -7,26 +7,58 @@
 // https://opensource.org/licenses/MIT
 
 /**
- * Error severity levels for categorizing error importance.
- * Used across the entire monorepo for consistent error handling.
+ * Error severity levels constant object.
+ * Sub-level constant for AglaError system.
+ *
+ * Naming convention:
+ * - AG_ prefix: Sub-level constants used internally by AglaError
+ * - Agla prefix: Main-level classes and types
+ *
+ * Using const assertion provides better type inference and tree-shaking
+ * compared to enum while maintaining type safety.
  */
-export enum ErrorSeverity {
+export const AG_ERROR_SEVERITY = {
   /** Critical system failures that require immediate attention and may cause system shutdown */
-  FATAL = 'fatal',
+  FATAL: 'fatal',
   /** Runtime errors that prevent normal operation but allow system to continue */
-  ERROR = 'error',
+  ERROR: 'error',
   /** Potential issues that don't prevent operation but should be investigated */
-  WARNING = 'warning',
+  WARNING: 'warning',
   /** Informational messages about error conditions for debugging purposes */
-  INFO = 'info',
-}
+  INFO: 'info',
+} as const;
 
 /**
- * Type guard to check if a value is a valid ErrorSeverity
- * @param value - Value to validate
- * @returns True if value is a valid ErrorSeverity
+ * Type representing valid error severity levels.
+ * Sub-level type derived from AG_ERROR_SEVERITY for type safety.
+ *
+ * Naming convention:
+ * - AGT_ prefix: Sub-level types derived from AG_ constants
  */
-export const isValidErrorSeverity = function(value: unknown): value is ErrorSeverity {
+export type AGT_ErrorSeverity = typeof AG_ERROR_SEVERITY[keyof typeof AG_ERROR_SEVERITY];
+
+/**
+ * Array of all valid error severity values.
+ * Useful for validation and iteration.
+ * Sub-level constant array for runtime checks.
+ */
+export const AG_ERROR_SEVERITY_VALUES = Object.values(AG_ERROR_SEVERITY);
+
+/**
+ * Type guard to check if a value is a valid error severity.
+ * Sub-level utility function for runtime validation.
+ *
+ * @param value - Value to validate
+ * @returns True if value is a valid AGT_ErrorSeverity
+ *
+ * @example
+ * ```typescript
+ * if (AG_isValidErrorSeverity(input)) {
+ *   // input is AGT_ErrorSeverity
+ * }
+ * ```
+ */
+export const AG_isValidErrorSeverity = (value: unknown): value is AGT_ErrorSeverity => {
   return typeof value === 'string'
-    && Object.values(ErrorSeverity).includes(value as ErrorSeverity);
+    && AG_ERROR_SEVERITY_VALUES.includes(value as AGT_ErrorSeverity);
 };

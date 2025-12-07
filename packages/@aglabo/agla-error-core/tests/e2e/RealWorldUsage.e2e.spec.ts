@@ -10,10 +10,10 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { ErrorSeverity } from '../../shared/types/ErrorSeverity.types.js';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../../src/__tests__/helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 /**
  * Real-world usage E2E tests
@@ -24,7 +24,7 @@ describe('Real World Usage', () => {
   it('creates, chains, serializes, and prints error', () => {
     const base = new TestAglaError('USER_ACTION_ERROR', 'Failed to process action', {
       code: 'UA_001',
-      severity: ErrorSeverity.ERROR,
+      severity: AG_ERROR_SEVERITY.ERROR,
       context: { user: 'alice', action: 'create-document' },
     });
 
@@ -33,11 +33,14 @@ describe('Real World Usage', () => {
     const str = chained.toString();
 
     expect(json).toHaveProperty('errorType', 'USER_ACTION_ERROR');
-    expect(json).toHaveProperty('message');
+    expect(json).toHaveProperty('message', '[TEST] Failed to process action');
     expect(json).toHaveProperty('code', 'UA_001');
-    expect(json).toHaveProperty('severity', ErrorSeverity.ERROR);
+    expect(json).toHaveProperty('severity', AG_ERROR_SEVERITY.ERROR);
     expect(json).toHaveProperty('context');
     expect(str).toContain('USER_ACTION_ERROR');
-    expect(str).toContain('DB unavailable');
+    expect(str).toContain('[TEST] Failed to process action');
+    // ES2022: cause is separate, accessible via Error.cause
+    expect((chained as Error).cause).toBeInstanceOf(Error);
+    expect(((chained as Error).cause as Error).message).toBe('DB unavailable');
   });
 });

@@ -10,11 +10,11 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import type { AglaError } from '../../../shared/types/AglaError.types.js';
-import { ErrorSeverity } from '../../../shared/types/ErrorSeverity.types.js';
+import type { AglaError } from '@shared/types/AglaError.types';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 // Test cases
 /**
@@ -27,16 +27,16 @@ describe('Error Propagation', () => {
   /**
    * Multi-level Error Chaining Tests
    *
-   * Tests property preservation and message accumulation through
+   * Tests property preservation and ES2022 cause chain through
    * multiple levels of error chaining.
    */
   describe('Multi-level chaining', () => {
-    // Test: Property preservation through multiple chaining levels
-    it('preserves base properties across levels and appends causes', () => {
+    // Test: Property preservation through multiple chaining levels with ES2022 cause
+    it('preserves base properties across levels and sets ES2022 cause chain', () => {
       const timestamp = new Date('2025-08-29T21:42:00Z');
       const base = new TestAglaError('MULTI_LEVEL_ERROR', 'Base level error', {
         code: 'ML_001',
-        severity: ErrorSeverity.FATAL,
+        severity: AG_ERROR_SEVERITY.FATAL,
         timestamp,
         context: { level: 0, module: 'base' },
       });
@@ -45,11 +45,15 @@ describe('Error Propagation', () => {
       const level2 = level1.chain(new Error('Level 2 failure'));
       const finalE = level2.chain(new Error('Final failure'));
 
-      expect(finalE.message).toContain('Final failure');
-      expect(finalE.message).toContain('Level 2 failure');
+      // ES2022 standard: message is preserved from base, cause is set at each level
+      expect(finalE.message).toBe('[TEST] Base level error');
+      expect((finalE as Error).cause).toBeInstanceOf(Error);
+      expect(((finalE as Error).cause as Error).message).toBe('Final failure');
+
+      // Base properties are preserved
       expect(finalE.errorType).toBe('MULTI_LEVEL_ERROR');
       expect(finalE.code).toBe('ML_001');
-      expect(finalE.severity).toBe(ErrorSeverity.FATAL);
+      expect(finalE.severity).toBe(AG_ERROR_SEVERITY.FATAL);
       expect(finalE.context).toHaveProperty('level', 0);
       expect(finalE.context).toHaveProperty('module', 'base');
       expect(finalE.name).toBe('TestAglaError');
@@ -60,8 +64,8 @@ describe('Error Propagation', () => {
   /**
    * Function Boundary Propagation Tests
    *
-   * Tests error propagation and enrichment across different function
-   * contexts, simulating service and controller layer interactions.
+   * Tests error propagation across different function contexts using ES2022 cause chain,
+   * simulating service and controller layer interactions.
    */
   describe('Propagation across function boundaries', () => {
     /**
@@ -84,7 +88,7 @@ describe('Error Propagation', () => {
       } catch (e) {
         return new TestAglaError('SERVICE_ERROR', 'Service failed', {
           code: 'SVC_001',
-          severity: ErrorSeverity.ERROR,
+          severity: AG_ERROR_SEVERITY.ERROR,
           context: { component: 'service' },
         }).chain(e as Error);
       }
@@ -109,15 +113,19 @@ describe('Error Propagation', () => {
       return err.chain(new Error('Controller observed failure'));
     };
 
-    // Test: Cross-boundary propagation with context enrichment
-    it('keeps severity and accumulates context', () => {
+    // Test: Cross-boundary propagation with ES2022 cause chain
+    it('keeps severity, preserves context, and maintains ES2022 cause chain', () => {
       const propagated = controller();
-      expect(propagated.severity).toBe(ErrorSeverity.ERROR);
+      expect(propagated.severity).toBe(AG_ERROR_SEVERITY.ERROR);
       expect(propagated.context).toHaveProperty('component', 'service');
-      expect(propagated.message).toContain('Controller observed failure');
+
+      // Cause chain: controller error -> service error (with DB error as cause)
+      expect((propagated as Error).cause).toBeInstanceOf(Error);
+      expect(((propagated as Error).cause as Error).message).toBe('Controller observed failure');
+
       const json = propagated.toJSON();
       expect(json).toHaveProperty('code', 'SVC_001');
-      expect(json).toHaveProperty('severity', ErrorSeverity.ERROR);
+      expect(json).toHaveProperty('severity', AG_ERROR_SEVERITY.ERROR);
     });
   });
 });

@@ -10,11 +10,11 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { AglaError } from '../../../shared/types/AglaError.types.js';
-import type { AglaErrorContext, AglaErrorOptions } from '../../../shared/types/AglaError.types.js';
+import { AglaError } from '@shared/types/AglaError.types';
+import type { AglaErrorContext, AglaErrorOptions } from '@shared/types/AglaError.types';
 
 // Test utilities
-import { TestAglaError } from '../helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 /**
  * Processed error type for testing type system integration scenarios.

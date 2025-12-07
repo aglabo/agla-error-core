@@ -10,23 +10,23 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { isValidErrorSeverity } from '../../../shared/types/ErrorSeverity.types.js';
+import { AG_isValidErrorSeverity } from '@shared/types/ErrorSeverity.types';
 
 // Test cases
 /**
- * ErrorSeverity Unit Tests
+ * AG_ERROR_SEVERITY Unit Tests
  *
- * Tests the ErrorSeverity enum validation functions, focusing on
- * isValidErrorSeverity function with various input types and edge cases.
+ * Tests the AG_ERROR_SEVERITY constant validation functions, focusing on
+ * AG_isValidErrorSeverity function with various input types and edge cases.
  */
-describe('Given ErrorSeverity enum values', () => {
+describe('Given AG_ERROR_SEVERITY constant values', () => {
   /**
-   * isValidErrorSeverity Function Tests
+   * AG_isValidErrorSeverity Function Tests
    *
-   * Tests the validation function with valid enum values, edge cases,
+   * Tests the validation function with valid severity values, edge cases,
    * and special JavaScript values to ensure robust type checking.
    */
-  describe('When validating with isValidErrorSeverity', () => {
+  describe('When validating with AG_isValidErrorSeverity', () => {
     // Test: Edge case validation - case variants, whitespace, and numeric strings
     it('Then エッジケース：should handle edge case values', () => {
       // Arrange
@@ -46,7 +46,7 @@ describe('Given ErrorSeverity enum values', () => {
 
       // Act & Assert
       edgeCaseValues.forEach((value) => {
-        expect(isValidErrorSeverity(value)).toBe(false);
+        expect(AG_isValidErrorSeverity(value)).toBe(false);
       });
     });
 
@@ -63,7 +63,7 @@ describe('Given ErrorSeverity enum values', () => {
 
       // Act & Assert
       specialValues.forEach((value) => {
-        expect(isValidErrorSeverity(value)).toBe(false);
+        expect(AG_isValidErrorSeverity(value)).toBe(false);
       });
     });
   });

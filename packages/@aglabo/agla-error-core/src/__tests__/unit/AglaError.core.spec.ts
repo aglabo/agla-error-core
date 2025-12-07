@@ -8,12 +8,12 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import type { AglaErrorOptions } from '../../../shared/types/AglaError.types.js';
-import { ErrorSeverity } from '../../../shared/types/ErrorSeverity.types.js';
+import type { AglaErrorOptions } from '@shared/types/AglaError.types';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import type { _TAglaErrorContextWithSymbols } from '../helpers/test-types.types.js';
-import { TestAglaError } from '../helpers/TestAglaError.class.ts';
+import type { _TAglaErrorContextWithSymbols } from '@tests/_helpers/test-types.types';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 // Test cases
 /**
@@ -32,8 +32,8 @@ describe('Given AglaError constructor with valid inputs', () => {
   describe('When creating error with basic parameters only', () => {
     // Test: Severity option setting
     it('Then 正常系：should set severity option', () => {
-      const error = new TestAglaError('TEST_ERROR', 'Test error message', { severity: ErrorSeverity.ERROR });
-      expect(error.severity).toBe(ErrorSeverity.ERROR);
+      const error = new TestAglaError('TEST_ERROR', 'Test error message', { severity: AG_ERROR_SEVERITY.ERROR });
+      expect(error.severity).toBe(AG_ERROR_SEVERITY.ERROR);
     });
 
     // Test: Timestamp option setting
@@ -46,7 +46,7 @@ describe('Given AglaError constructor with valid inputs', () => {
     // Test: Multiple options setting together
     it('Then 正常系：should set all options together', () => {
       const code = 'TEST_001';
-      const severity = ErrorSeverity.FATAL;
+      const severity = AG_ERROR_SEVERITY.FATAL;
       const timestamp = new Date('2025-08-29T21:42:00Z');
       const context = { userId: '123', operation: 'all-options' };
       const error = new TestAglaError('TEST_ERROR', 'Test error message', { code, severity, timestamp, context });
@@ -81,7 +81,7 @@ describe('Given AglaError constructor with valid inputs', () => {
 
     // Test: Invalid severity handling
     it('Then should handle invalid severity as per implementer policy', () => {
-      const invalidSeverity = 'critical' as unknown as ErrorSeverity;
+      const invalidSeverity = 'critical' as unknown as typeof AG_ERROR_SEVERITY.ERROR;
       const error = new TestAglaError('TEST_ERROR', 'Test message', { severity: invalidSeverity });
       expect(error.severity).toBe(invalidSeverity);
     });
@@ -156,7 +156,7 @@ describe('Given AglaError property defaults verification', () => {
     // Test: Option value preservation
     it('Then エッジケース：should keep provided option values', () => {
       const code = 'TEST_001';
-      const severity = ErrorSeverity.ERROR;
+      const severity = AG_ERROR_SEVERITY.ERROR;
       const timestamp = new Date('2025-08-29T21:42:00Z');
       const error = new TestAglaError('TEST_ERROR', 'Test message', { code, severity, timestamp });
 

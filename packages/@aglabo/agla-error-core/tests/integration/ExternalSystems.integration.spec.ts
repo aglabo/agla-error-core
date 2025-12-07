@@ -10,11 +10,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Type definitions
-import type { AglaError } from '../../shared/types/AglaError.types.js';
-import { ErrorSeverity } from '../../shared/types/ErrorSeverity.types.js';
+import type { AglaError } from '@shared/types/AglaError.types';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../../src/__tests__/helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 // Test mocks
 const mockFs = { readFile: vi.fn(), writeFile: vi.fn(), access: vi.fn() };
@@ -35,7 +35,7 @@ const handleFileOperation = async (
     return { result: await fs.readFile(filePath, 'utf8') };
   } catch (cause) {
     const error = new TestAglaError('FILE_READ_ERROR', `Failed to read file: ${filePath}`, {
-      severity: ErrorSeverity.ERROR,
+      severity: AG_ERROR_SEVERITY.ERROR,
       context: { filePath, systemCode: (cause as { code?: string }).code, operation: 'readFile' },
     });
     return { error };
@@ -55,7 +55,7 @@ const handleHttpRequest = async (
     return { result: await http.get(url) };
   } catch (cause) {
     const error = new TestAglaError('HTTP_REQUEST_ERROR', `HTTP request failed: ${url}`, {
-      severity: ErrorSeverity.ERROR,
+      severity: AG_ERROR_SEVERITY.ERROR,
       context: { url, method: 'GET', cause: (cause as Error).message },
     });
     return { error };
@@ -140,7 +140,7 @@ describe('External Systems Integration (mocked)', () => {
     it('formats message and emits annotations', () => {
       const agla = new TestAglaError('GITHUB_ACTION_ERROR', 'Action execution failed', {
         code: 'GA001',
-        severity: ErrorSeverity.ERROR,
+        severity: AG_ERROR_SEVERITY.ERROR,
         context: { workflow: 'test-workflow', step: 'tool-installation' },
       });
       handleGitHubActionsError(agla, mockCore);

@@ -10,10 +10,10 @@
 import { describe, expect, it, vi } from 'vitest';
 
 // Type definitions
-import { ErrorSeverity } from '../../shared/types/ErrorSeverity.types.js';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../../src/__tests__/helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 // Test mocks
 const fs = { readFile: vi.fn() };
@@ -32,7 +32,7 @@ const readConfig = async (path: string): Promise<string | TestAglaError> => {
     return await fs.readFile(path, 'utf8');
   } catch (e) {
     return new TestAglaError('FS_READ', `Cannot read: ${path}`, {
-      severity: ErrorSeverity.ERROR,
+      severity: AG_ERROR_SEVERITY.ERROR,
       context: { path, cause: (e as Error).message },
     });
   }
@@ -43,7 +43,7 @@ const fetchStatus = async (url: string): Promise<unknown | TestAglaError> => {
     return await http.get(url);
   } catch (e) {
     return new TestAglaError('HTTP_GET', `GET failed: ${url}`, {
-      severity: ErrorSeverity.ERROR,
+      severity: AG_ERROR_SEVERITY.ERROR,
       context: { url, cause: (e as Error).message },
     });
   }

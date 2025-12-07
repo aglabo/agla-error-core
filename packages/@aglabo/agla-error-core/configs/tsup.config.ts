@@ -10,7 +10,7 @@
 import { defineConfig } from 'tsup';
 
 // user config
-import { baseConfig, createAliasRewritePlugin } from '../base/configs/tsup.config.base.ts';
+import { baseConfig, createAliasRewritePlugin } from '../../../../base/configs/tsup.config.base.ts';
 
 // configs
 export default defineConfig({
@@ -34,6 +34,7 @@ export default defineConfig({
     createAliasRewritePlugin({
       '@shared': './shared',
       '@runtime': './src/runtime',
+      '@tests': './tests',
     }),
   ],
 });

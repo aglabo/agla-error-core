@@ -7,7 +7,7 @@
 // https://opensource.org/licenses/MIT
 
 // Type definitions
-import type { AglaErrorContext } from '../../../shared/types/AglaError.types';
+import type { AglaErrorContext } from '@shared/types/AglaError.types';
 
 /**
  * Utility type that makes all readonly properties of T mutable.

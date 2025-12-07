@@ -8,4 +8,9 @@
 
 // Error handling types
 export * from './AglaError.types';
-export * from './ErrorSeverity.types';
+export {
+  AG_ERROR_SEVERITY,
+  AG_ERROR_SEVERITY_VALUES,
+  AG_isValidErrorSeverity,
+} from './ErrorSeverity.types';
+export type { AGT_ErrorSeverity } from './ErrorSeverity.types';

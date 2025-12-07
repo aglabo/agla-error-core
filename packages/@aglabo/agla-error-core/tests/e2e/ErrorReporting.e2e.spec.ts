@@ -10,10 +10,10 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { ErrorSeverity } from '../../shared/types/ErrorSeverity.types.js';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../../src/__tests__/helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 /**
  * Formats AglaError for action report display
@@ -37,14 +37,17 @@ describe('Error Reporting', () => {
     const line = toActionFormat(chained);
     expect(line).toContain('[GA001]');
     expect(line).toContain('PIPELINE');
-    expect(line).toContain('Tool not found');
+    expect(line).toContain('[TEST] Step failed');
+    // ES2022: cause is separate, not in message
+    expect((chained as Error).cause).toBeInstanceOf(Error);
+    expect(((chained as Error).cause as Error).message).toBe('Tool not found');
   });
 
   // Explicit property preservation: maintains user-provided codes and severity levels
   it('keeps explicit code and severity in JSON report', () => {
-    const e = new TestAglaError('DEPLOY', 'Deploy error', { code: 'DEP_01', severity: ErrorSeverity.ERROR });
+    const e = new TestAglaError('DEPLOY', 'Deploy error', { code: 'DEP_01', severity: AG_ERROR_SEVERITY.ERROR });
     const json = e.toJSON();
     expect(json).toHaveProperty('code', 'DEP_01');
-    expect(json).toHaveProperty('severity', ErrorSeverity.ERROR);
+    expect(json).toHaveProperty('severity', AG_ERROR_SEVERITY.ERROR);
   });
 });

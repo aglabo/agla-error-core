@@ -10,10 +10,10 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { ErrorSeverity } from '../../shared/types/ErrorSeverity.types.js';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../../src/__tests__/helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 /**
  * Serialization compatibility integration tests
@@ -29,7 +29,7 @@ describe('Serialization Compatibility', () => {
       const timestamp = new Date('2025-09-01T00:00:00.000Z');
       const error = new TestAglaError('ROUND_TRIP', 'Round trip test', {
         code: 'RT001',
-        severity: ErrorSeverity.INFO,
+        severity: AG_ERROR_SEVERITY.INFO,
         timestamp,
         context: { a: 1, b: 'two', nested: { ok: true } },
       });
@@ -39,9 +39,9 @@ describe('Serialization Compatibility', () => {
 
       expect(roundTripped).toEqual({
         errorType: 'ROUND_TRIP',
-        message: 'Round trip test',
+        message: '[TEST] Round trip test',
         code: 'RT001',
-        severity: ErrorSeverity.INFO,
+        severity: AG_ERROR_SEVERITY.INFO,
         timestamp: timestamp.toISOString(),
         context: { a: 1, b: 'two', nested: { ok: true } },
       });
@@ -53,7 +53,7 @@ describe('Serialization Compatibility', () => {
     it('preserves core fields across formats', () => {
       const error = new TestAglaError('MULTI_FORMAT', 'Multi format test', {
         code: 'MF001',
-        severity: ErrorSeverity.ERROR,
+        severity: AG_ERROR_SEVERITY.ERROR,
         context: { format: 'multi', conversion: true },
       });
 
@@ -96,7 +96,7 @@ describe('Serialization Compatibility', () => {
         context: { note: 'メモ📝', city: '東京' },
       });
       const rt = JSON.parse(JSON.stringify(error.toJSON()));
-      expect(rt.message).toBe('日本語とemoji😀');
+      expect(rt.message).toBe('[TEST] 日本語とemoji😀');
       expect(rt.context.note).toBe('メモ📝');
       expect(rt.context.city).toBe('東京');
     });

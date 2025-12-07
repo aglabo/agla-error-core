@@ -10,11 +10,11 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { AglaError } from '../../../shared/types/AglaError.types.js';
-import { ErrorSeverity } from '../../../shared/types/ErrorSeverity.types.js';
+import { AglaError } from '@shared/types/AglaError.types';
+import { AG_ERROR_SEVERITY } from '@shared/types/ErrorSeverity.types';
 
 // Test utilities
-import { TestAglaError } from '../helpers/TestAglaError.class.ts';
+import { TestAglaError } from '@tests/_helpers/TestAglaError.class';
 
 /**
  * Circular context type for testing circular reference handling in serialization.
@@ -49,7 +49,7 @@ describe('Given AglaError instance for JSON serialization', () => {
       const message = 'Test message';
       const error = new TestAglaError(errorType, message);
       const json = error.toJSON();
-      expect(json).toEqual({ errorType, message });
+      expect(json).toEqual({ errorType, message: `[TEST] ${message}` });
     });
 
     // Test: Context inclusion in serialization
@@ -57,7 +57,7 @@ describe('Given AglaError instance for JSON serialization', () => {
       const context = { userId: '123', operation: 'test' };
       const error = new TestAglaError('TEST_ERROR', 'Test message', { context });
       const json = error.toJSON();
-      expect(json).toEqual({ errorType: 'TEST_ERROR', message: 'Test message', context });
+      expect(json).toEqual({ errorType: 'TEST_ERROR', message: '[TEST] Test message', context });
     });
 
     // Test: Timestamp formatting to ISO string
@@ -98,7 +98,7 @@ describe('Given AglaError string representation', () => {
       const message = 'Test message';
       const context = { userId: '123' };
       const error = new TestAglaError(errorType, message, { context });
-      const expectedFormat = `${errorType}: ${message} ${JSON.stringify(context)}`;
+      const expectedFormat = `${errorType}: [TEST] ${message} ${JSON.stringify(context)}`;
       const result = error.toString();
       expect(result).toBe(expectedFormat);
     });
@@ -113,7 +113,12 @@ describe('Given AglaError string representation', () => {
   describe('When handling special property combinations', () => {
     // Test: All severity levels with context handling
     it('Then エッジケース：should handle all severity levels with context', () => {
-      const severities = [ErrorSeverity.FATAL, ErrorSeverity.ERROR, ErrorSeverity.WARNING, ErrorSeverity.INFO];
+      const severities = [
+        AG_ERROR_SEVERITY.FATAL,
+        AG_ERROR_SEVERITY.ERROR,
+        AG_ERROR_SEVERITY.WARNING,
+        AG_ERROR_SEVERITY.INFO,
+      ];
       const context = { test: 'context' };
       severities.forEach((severity) => {
         const error = new TestAglaError('TEST_ERROR', 'Test message', { severity, context });
@@ -125,7 +130,7 @@ describe('Given AglaError string representation', () => {
     // Test: Complete property set handling
     it('Then エッジケース：should handle complete property set', () => {
       const timestamp = new Date('2025-12-31T23:59:59.999Z');
-      const severity = ErrorSeverity.FATAL;
+      const severity = AG_ERROR_SEVERITY.FATAL;
       const context = { final: true, year: 2025 };
       const error = new TestAglaError('FINAL_ERROR', 'Final test', { timestamp, severity, context, code: 'FINAL_001' });
       expect(error.timestamp).toBe(timestamp);
