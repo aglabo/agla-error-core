@@ -59,6 +59,7 @@
     "lint:filenames": "pnpm exec ls-lint --config ./configs/ls-lint.yaml ",
     "lint:text": "textlint --config ./configs/textlintrc.yaml --ignore-path ./configs/.textlintignore --cache --cache-location .cache/textlint-cache/textlintCache ",
     "lint:markdown": "markdownlint-cli2 --config ./configs/.markdownlint.yaml ",
+    "test:all": "pnpm run -r test:all",
     "test:develop": "pnpm run -r test:develop",
     "test:functional": "pnpm run -r test:functional",
     "test:ci": "pnpm run -r test:ci",

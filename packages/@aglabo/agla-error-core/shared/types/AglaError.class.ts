@@ -126,7 +126,7 @@ export abstract class AglaError extends Error {
    *
    * @returns A formatted string containing the error type, message, and context (if present)
    */
-  toString(): string {
+  override toString(): string {
     let contextStr = '';
     if (this.context) {
       contextStr = JSON.stringify(this.context);

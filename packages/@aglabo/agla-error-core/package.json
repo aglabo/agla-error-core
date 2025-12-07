@@ -38,7 +38,7 @@
     "test:e2e": "pnpm exec vitest run --config ./configs/vitest.config.e2e.ts",
     "test:runtime": "concurrently \"pnpm run test:runtime:node\" \"pnpm run test:runtime:deno\" \"pnpm run test:runtime:bun\" ",
     "test:runtime:node": "pnpm exec vitest run --config ./configs/vitest.config.runtime.ts ",
-    "test:runtime:deno": "deno test src/**/__tests__/runtime/deno/*.spec.ts",
+    "test:runtime:deno": "deno test src/**/__tests__/runtime/deno/*.ts",
     "test:runtime:bun": "bun test ./src/__tests__/runtime/bun/",
     "sync:configs": "pnpm -w run sync:configs "
   },

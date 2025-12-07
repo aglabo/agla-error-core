@@ -12,7 +12,10 @@
     "shared/**/*.ts",
     "tests/**/*.ts"
   ],
-  "exclude": [],
+  "exclude": [
+    "src/__tests__/runtime/deno/**/*.ts",
+    "src/__tests__/runtime/bun/**/*.ts"
+  ],
   "compilerOptions": {
     // directories
     "declarationDir": "./maps",
