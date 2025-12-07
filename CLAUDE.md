@@ -1,350 +1,80 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+**agla-error-core** は TypeScript 製のエラーハンドリングライブラリ。pnpm workspace による monorepo で、複数ランタイム (Node.js, Deno, Bun) 対応。
 
-## Project Overview
+## コア原則
 
-This is an **OSS Project Starter Template** designed to help quickly launch modern open source projects with best practices and essential tools pre-configured. It focuses on providing a lightweight development environment with Git hooks for security and code quality.
+- pnpm 専用: npm は使わない。`pnpm install`, `pnpm run` のみ
+- 自動コミットメッセージ生成: `git commit` で自動生成。手書き禁止。`--model claude-sonnet-4-5` で claude 指定可
+- Conventional Commits 厳密準守: 型(スコープ): 説明。ヘッダ 72 字以下、本文 100 字以下
+- 型安全性最優先: `pnpm run check:types` で常に型チェック。型エラーは即修正
+- テストと品質: `pnpm run test:ci` 通さないコミット禁止。全テストタイプ (unit/functional/integration/e2e/runtime) 通すこと
 
-## Commit Message Generation System
+## 技術スタック
 
-This repository uses an **automated commit message generation system** powered by AI. Understanding this system is critical for working in this codebase.
+| 項目           | 詳細                                                  |
+| -------------- | ----------------------------------------------------- |
+| 言語           | TypeScript 5.9+                                       |
+| ランタイム     | Node.js >=20, Deno, Bun                               |
+| パッケージ管理 | pnpm@10.24.0                                          |
+| ビルド         | tsup (ESM + CJS)                                      |
+| テスト         | Vitest (5 種類の config)                              |
+| 格式化         | dprint                                                |
+| リント         | ESLint + ls-lint + textlint + markdownlint            |
+| Git フック     | lefthook (pre-commit, prepare-commit-msg, commit-msg) |
 
-### Automatic Generation via Git Hooks
-
-The `prepare-commit-msg` hook automatically generates Conventional Commits format messages when no message is provided:
-
-```bash
-# Hook is triggered automatically by lefthook
-# Configured in: lefthook.yml
-scripts/prepare-commit-msg.sh --to-buffer
-```
-
-### Manual Generation
-
-To generate a commit message manually (outputs to stdout):
-
-```bash
-bash scripts/prepare-commit-msg.sh
-```
-
-### Commit Message Format (Conventional Commits)
-
-All commit messages follow this **strict format** with character limits enforced by commitlint:
-
-```text
-type(scope): summary                    # ← Header: MAX 72 characters, lowercase start
-
-- file1.ext:
-  Description of changes                # ← Body lines: MAX 100 characters each
-- file2.ext:
-  Description of changes
-```
-
-**Character Limits (commitlint rules):**
-
-- Header line (`type(scope): summary`): **72 characters maximum**
-- Body lines: **100 characters maximum**
-- Subject must start with **lowercase** (not uppercase or PascalCase)
-
-**Commit Types:**
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `chore`: Routine task, maintenance
-- `docs`: Documentation only
-- `test`: Adding or updating tests
-- `refactor`: Code change without fixing bugs or adding features
-- `perf`: Performance improvement
-- `ci`: CI/CD related changes
-- `config`: Configuration changes
-- `release`: Release-related commits
-- `merge`: Merge commits (especially with conflict resolution)
-- `build`: Build system or external dependencies
-- `style`: Non-functional code style changes (formatting, linting)
-- `deps`: Updating third-party dependencies
-
-**Scope Guidelines:**
-
-- Configuration files (`config/`, `*.yaml`, `*.json`): `config`
-- Scripts (`scripts/`, `*.sh`): `scripts`
-- Documentation (`docs/`, `*.md`): `docs`
-- Tests (`__tests__/`, `tests/`): `test`
-
-### AI Model Selection
-
-The commit message generator supports multiple AI models via `--model` option:
+## クイックコマンド
 
 ```bash
-# OpenAI models (via codex CLI)
-scripts/prepare-commit-msg.sh --model gpt-5
-scripts/prepare-commit-msg.sh --model o1-mini
-
-# Anthropic models (via claude CLI)
-scripts/prepare-commit-msg.sh --model claude-sonnet-4-5
-scripts/prepare-commit-msg.sh --model haiku
-scripts/prepare-commit-msg.sh --model sonnet
-scripts/prepare-commit-msg.sh --model opus
-```
-
-Default model: `gpt-5`
-
-### Agent Configuration
-
-The commit message generation logic is defined in:
-
-- **Agent file**: `.claude/agents/commit-message-generator.md`
-- **Script implementation**: `scripts/prepare-commit-msg.sh`
-
-The agent analyzes:
-
-1. Last 10 commits (`git log --oneline -10`) for project conventions
-2. Staged changes (`git diff --cached`) for actual modifications
-3. File-by-file changes with detailed descriptions
-
-## Git Hooks and Security
-
-This repository uses **lefthook** to manage Git hooks with parallel execution for performance.
-
-### Pre-commit Hooks (Security Scanning)
-
-Both tools run in parallel to detect secrets before commits:
-
-```bash
-# Gitleaks - detects secrets in staged files
-gitleaks protect --config ./configs/gitleaks.toml --staged
-
-# Secretlint - static analysis for secrets
-secretlint --secretlintrc ./configs/secretlint.config.yaml \
-  --secretlintignore .gitignore --maskSecrets "{staged_files}"
-```
-
-**Configuration files:**
-
-- `configs/gitleaks.toml`
-- `configs/secretlint.config.yaml`
-
-### Commit-msg Hook (Message Validation)
-
-Validates commit messages against Conventional Commits format:
-
-```bash
-commitlint --config ./configs/commitlint.config.cjs --edit
-```
-
-**Configuration:** `configs/commitlint.config.js` (ES module format, uses `.cjs` extension)
-
-### Hook Configuration
-
-All hooks are configured in `lefthook.yml`. To install hooks after cloning:
-
-```bash
+# セットアップ
+pnpm install
 lefthook install
+
+# 開発
+pnpm run lint              # 全リント実行
+pnpm run format:dprint     # コード整形
+pnpm run check:types       # 型チェック
+pnpm run test:develop      # テスト (ウォッチモード)
+pnpm run test:ci           # CI テストスイート
+pnpm run sync:configs      # 設定同期
 ```
 
-## Development Tools
-
-Tools are **not bundled** with the repository. Install independently using Scoop (Windows) or package managers:
-
-| Tool       | Purpose                   | Installation                      |
-| ---------- | ------------------------- | --------------------------------- |
-| lefthook   | Git hook manager          | `scoop install lefthook`          |
-| delta      | Visual Git diff viewer    | `scoop install delta`             |
-| commitlint | Commit message linting    | `pnpm install -g @commitlint/cli` |
-| gitleaks   | Secret detection          | `scoop install gitleaks`          |
-| secretlint | Secret static analysis    | `pnpm install -g secretlint`      |
-| cspell     | Spell checker             | `pnpm install -g cspell`          |
-| dprint     | Code formatter (optional) | `scoop install dprint`            |
-
-## Working with Claude Code in This Repository
-
-### Creating Commits
-
-When creating commits in this repository:
-
-1. **Stage your changes** as usual:
-   ```bash
-   git add <files>
-   ```
-
-2. **Do NOT manually write commit messages**. The prepare-commit-msg hook will auto-generate them:
-   ```bash
-   git commit
-   # Message is automatically generated by scripts/prepare-commit-msg.sh
-   ```
-
-3. **Review and edit** the generated message if needed before finalizing the commit.
-
-### Character Limit Awareness
-
-When generating or suggesting commit messages, always enforce:
-
-- **Header**: 72 characters max
-- **Body lines**: 100 characters max
-- **Subject case**: Start with lowercase
-
-If changes are too complex for these limits, suggest splitting into multiple commits.
-
-### File-by-file Descriptions
-
-Commit messages should describe changes **per file**, not as a generic summary:
-
-**Good:**
-
-```
-feat(scripts): add automatic commit message generation
-
-- scripts/prepare-commit-msg.sh:
-  Implement Codex CLI integration for commit message generation
-- lefthook.yml:
-  Add prepare-commit-msg hook configuration
-```
-
-**Bad:**
-
-```
-feat: add new feature
-
-Added commit message generation functionality
-```
-
-## Repository Structure
-
-```
-.
-├── .claude/              # Local Claude Code configuration (repository-specific)
-│   ├── agents/           # AI agent configurations
-│   │   └── commit-message-generator.md
-│   └── commands/         # Custom Claude Code commands (if any)
-├── configs/              # Tool configurations
-│   ├── commitlint.config.js
-│   ├── gitleaks.toml
-│   └── secretlint.config.yaml
-├── scripts/              # Development scripts
-│   └── prepare-commit-msg.sh  # Commit message generator
-├── temp/                 # Temporary files (gitignored)
-├── .editorconfig         # Editor configuration
-├── .gitignore           # Git ignore patterns
-├── lefthook.yml         # Git hooks configuration
-└── LICENSE              # MIT License
-```
-
-### Claude Code Directory Structure
-
-This repository uses both **local** (repository-specific) and **global** (user-wide) Claude Code configurations:
-
-**Local Configuration** (`.claude/` in repository):
-
-- **Purpose**: Project-specific agents and commands
-- **Location**: `<repository>/.claude/`
-- **Version Control**: Committed to git, shared with all users
-- **Contents**:
-  - `agents/` - Custom AI agent configurations for this project
-  - `commands/` - Project-specific slash commands
-
-**Global Configuration** (`~/.claude/plugins/` in user home):
-
-- **Purpose**: Reusable plugins shared across all projects
-- **Location**: `~/.claude/plugins/marketplaces/`
-- **Version Control**: User-specific, NOT committed to repositories
-- **Contents**:
-  - Plugin packages (e.g., `claude-idd-framework-marketplace/`)
-  - Shared libraries and utilities
-  - Global slash commands
-
-**Plugin Directory Structure:**
-
-```
-~/.claude/
-└── plugins/
-    └── marketplaces/
-        └── claude-idd-framework-marketplace/    # Example plugin
-            ├── .claude/
-            │   ├── agents/                       # Global agents
-            │   └── commands/
-            │       ├── _libs/                    # Shared libraries
-            │       │   ├── filename-utils.lib.sh
-            │       │   ├── idd-session.lib.sh
-            │       │   ├── prereq-check.lib.sh
-            │       │   └── io-utils.lib.sh
-            │       └── *.md                      # Slash commands
-            └── plugin.json                       # Plugin metadata
-```
-
-## Claude Code Plugin Integration
-
-This repository integrates with the **claude-idd-framework** plugin to provide enhanced development workflows.
-
-### Plugin Installation
-
-The claude-idd-framework plugin should be installed in the **global** plugins directory:
+## ディレクトリ構成
 
 ```bash
-# Plugin installation location
-~/.claude/plugins/marketplaces/claude-idd-framework-marketplace/
+packages/@aglabo/agla-error-core/
+├── shared/types/           # AglaError, ErrorSeverity など
+├── src/
+│   ├── index.ts           # エントリーポイント
+│   └── __tests__/         # unit, functional, runtime テスト
+├── tests/                 # integration, e2e テスト
+└── configs/               # tsup, vitest, eslint 設定
 ```
 
-**Note**: This is a user-wide installation. The plugin is NOT included in the repository and must be installed separately by each developer.
+## AI 協働ガイド
 
-### Plugin vs Local Configuration
+### 禁止事項
 
-Understanding the distinction between global plugins and local configurations:
+- npm を使う
+- 型エラーを無視してコミット
+- テスト抜きで機能追加
+- 手動でコミットメッセージ作成
 
-| Aspect           | Global Plugin (`~/.claude/plugins/`) | Local Config (`.claude/`)   |
-| ---------------- | ------------------------------------ | --------------------------- |
-| **Scope**        | All projects for the user            | This repository only        |
-| **Installation** | Installed once per user              | Committed to git            |
-| **Examples**     | claude-idd-framework libraries       | commit-message-generator.md |
-| **Purpose**      | Reusable utilities and commands      | Project-specific agents     |
-| **Sharing**      | User maintains their own copy        | Shared via git repository   |
+### 判断に迷う場合
 
-### Referencing Global Plugin Libraries
+- スコープ不明：`error-core` 使用が基本 (config, scripts, deps など個別指定も可)
+- テスト場所：機能は `src/__tests__/`、統合は `tests/`
+- ファイル名：lowercase-kebab-case (ts ファイルは `.class.ts`, `.types.ts` 接尾辞使用)
 
-Libraries and utilities are referenced from the global plugin directory:
+### ツール制限
 
-```bash
-# Library path used in scripts
-PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/claude-idd-framework-marketplace"
-FRAMEWORK_LIBS="$PLUGIN_DIR/.claude/commands/_libs"
-```
+- commitlint は自動コミット中に実行される (手動 commit-msg 作成不可)
+- dprint は自動フォーマット非対応 (明示的な `pnpm run format:dprint` が必要)
+- lefthook は pre-commit で secret 検出 (gitleaks, secretlint)
 
-### Available Libraries
+## リソース
 
-When writing bash scripts for this repository, you can source these shared libraries:
-
-```bash
-# Load libraries from plugin
-PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/claude-idd-framework-marketplace"
-FRAMEWORK_LIBS="$PLUGIN_DIR/.claude/commands/_libs"
-
-source "$FRAMEWORK_LIBS/filename-utils.lib.sh"   # Slug generation, filename utilities
-source "$FRAMEWORK_LIBS/idd-session.lib.sh"      # Session management
-source "$FRAMEWORK_LIBS/prereq-check.lib.sh"     # Prerequisite checking
-source "$FRAMEWORK_LIBS/io-utils.lib.sh"         # I/O utilities (error_print, etc.)
-```
-
-### Key Library Functions
-
-- **filename-utils.lib.sh**: `generate_slug()` - Convert titles to URL-safe slugs
-- **idd-session.lib.sh**: `_load_session()`, `_save_session()` - Session file management
-- **prereq-check.lib.sh**: `validate_git_full()` - Git environment validation
-- **io-utils.lib.sh**: `error_print()` - Standardized error messages
-
-### Plugin Commands
-
-The plugin provides slash commands available in this repository:
-
-- `/claude-idd-framework:\idd\issue:branch` - Git branch management from issues
-- `/claude-idd-framework:idd-commit-message` - Commit message generation
-- `/claude-idd-framework:idd-pr` - Pull request generation
-- Other IDD (Issue-Driven Development) workflow commands
-
-Refer to `~/.claude/plugins/marketplaces/claude-idd-framework-marketplace/.claude/commands/` for full command documentation.
-
-## Important Notes
-
-- **No package.json**: This is a template repository, not a Node.js project. Tools are installed system-wide.
-- **Windows-focused**: Setup scripts and tools are optimized for Windows with Scoop/pnpm.
-- **Template usage**: When creating a new repository from this template, customize the LICENSE file with your GitHub handle.
-- **Hook installation**: After cloning or forking, run `lefthook install` to activate Git hooks.
-- **Plugin dependency**: Some scripts may reference libraries from `~/.claude/plugins/marketplaces/claude-idd-framework-marketplace/`.
+- テスト戦略: `packages/@aglabo/agla-error-core/configs/vitest.config.*.ts`
+- ビルド設定: `packages/@aglabo/agla-error-core/configs/tsup.config.ts`
+- Git フック: `lefthook.yml`, `scripts/prepare-commit-msg.sh`
+- コミットルール: `configs/commitlint.config.js`
