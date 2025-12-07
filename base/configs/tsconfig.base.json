@@ -54,13 +54,12 @@
     // ✅ ライブラリ
     "lib": [
       "ESNext",
+      "ES2022.Error",
       "DOM"
     ],
     "types": [
       "node",
       "bun"
-    ],
-    // baseURLを許可
-    "ignoreDeprecations": "6.0"
+    ]
   }
 }
