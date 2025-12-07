@@ -1,0 +1,56 @@
+// src: ./deno.json
+// @(#): Deno configuration for runtime detection tests
+//
+// Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+{
+  // Import map for path aliases
+  "imports": {
+    "@shared/": "./shared/",
+    "@/": "./src/",
+    "@runtime/": "./src/runtime/",
+    "@tests/": "./tests/",
+    "@std/assert": "jsr:@std/assert@^1"
+  },
+  "compilerOptions": {
+    // Deno-specific type libraries
+    "lib": [
+      "deno.window",
+      "deno.ns",
+      "esnext"
+    ],
+    // Type definitions
+    "types": [
+      "npm:@types/node"
+    ],
+    // Strict type checking
+    "strict": true,
+    // Module settings for Deno
+    "module": "esnext"
+  },
+  // Test configuration
+  "test": {
+    "include": [
+      "src/runtime/__tests__/runtime/deno/**/*.test.ts"
+    ]
+  },
+  // Formatting settings (match project standards)
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 120,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  // Lint settings
+  "lint": {
+    "exclude": [
+      "src/__tests__/runtime/node/**",
+      "src/__tests__/runtime/bun/**",
+      "base/configs/**"
+    ]
+  }
+}
