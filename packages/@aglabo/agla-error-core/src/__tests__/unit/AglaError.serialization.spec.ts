@@ -194,26 +194,22 @@ describe('Given AglaError instance for string representation', () => {
       });
     });
 
-    // Test: Interface method consistency verification
-    it('Then 正常系：should provide consistent interface methods', () => {
-      const implementations = [new TestAglaError('TEST', 'msg')];
-      implementations.forEach((impl) => {
-        expect(typeof impl.toJSON).toBe('function');
-        expect(typeof impl.toString).toBe('function');
-        expect(typeof impl.chain).toBe('function');
-        expect(typeof (impl as AglaError).errorType).toBe('string');
-      });
-    });
+    // Test: Interface implementation verification
+    it('Then 正常系：should implement required interface', () => {
+      const error = new TestAglaError('TEST', 'message');
 
-    // Test: Base property consistency across implementations
-    it('Then 正常系：should maintain property consistency across implementations', () => {
-      const baseProps = ['errorType', 'message', 'name', 'stack'] as const;
-      const implementations = [new TestAglaError('TEST_ERROR', 'Test message')];
-      implementations.forEach((impl) => {
-        baseProps.forEach((prop) => {
-          expect(prop in impl).toBe(true);
-        });
+      // Method existence check
+      expect(typeof error.toJSON).toBe('function');
+      expect(typeof error.toString).toBe('function');
+      expect(typeof error.chain).toBe('function');
+
+      // Property check
+      ['errorType', 'message', 'name', 'stack'].forEach((prop) => {
+        expect(prop in error).toBe(true);
       });
+
+      // Type check
+      expect(typeof error.errorType).toBe('string');
     });
   });
 });

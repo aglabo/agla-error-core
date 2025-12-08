@@ -145,7 +145,42 @@ Deno.test('Deno Runtime: globalThis.Error compatibility', () => {
   assert(error instanceof globalThis.Error);
 });
 
-Deno.test('Deno Runtime: Stack trace generation', () => {
-  const error = new TestAglaError('TestError', 'Test');
+Deno.test('Deno Runtime: ✔1 stack should exist as string', () => {
+  const error = new TestAglaError('StackTest', 'Test message');
+  assert(typeof error.stack === 'string' || error.stack === undefined);
+  // In practice, Deno always provides stack
   assertExists(error.stack);
+});
+
+Deno.test('Deno Runtime: ✔2 stack should contain error name', () => {
+  const error = new TestAglaError('CustomErrorName', 'Test');
+  assertExists(error.stack);
+  assert(error.stack.includes(error.name));
+});
+
+Deno.test('Deno Runtime: ✔3 stack should contain error message', () => {
+  const error = new TestAglaError('TestError', 'Unique message 12345');
+  assertExists(error.stack);
+  assert(error.stack.includes(error.message));
+  assert(error.stack.includes('Unique message 12345'));
+});
+
+Deno.test('Deno Runtime: ✔4 chain() should create new stack for new instance', () => {
+  const cause = new Error('root cause');
+  const original = new TestAglaError('ChainTest', 'original error');
+  const originalStack = original.stack;
+
+  const chained = original.chain(cause);
+  const chainedStack = chained.stack;
+
+  // Both should have stack
+  assertExists(originalStack);
+  assertExists(chainedStack);
+
+  // Stack should be different (new instance = new stack)
+  assert(chainedStack !== originalStack);
+
+  // New stack should still contain error name and message
+  assert(chainedStack.includes(chained.name));
+  assert(chainedStack.includes('original error'));
 });

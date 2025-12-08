@@ -27,16 +27,36 @@ describe('Type Guards', () => {
    * covering object type checking and edge case handling.
    */
   describe('isValidAglaErrorContext', () => {
-    // Test: Non-object rejection - primitive types and null/undefined
+    // Test: Non-object rejection
     it('returns false for non-object values', () => {
       const cases = [null, undefined, 'str', 0, true, Symbol('x'), () => {}, BigInt(1)];
       cases.forEach((v) => expect(isValidAglaErrorContext(v)).toBe(false));
     });
 
-    // Test: Object validation - accepts valid plain objects
+    // Test: Plain object acceptance
     it('returns true for plain objects', () => {
       expect(isValidAglaErrorContext({})).toBe(true);
       expect(isValidAglaErrorContext({ user: 'a', id: 1 })).toBe(true);
+    });
+
+    // Test: Objects with null/undefined values
+    it('returns true for objects with null/undefined values', () => {
+      expect(isValidAglaErrorContext({ userId: null })).toBe(true);
+      expect(isValidAglaErrorContext({ value: undefined })).toBe(true);
+      expect(isValidAglaErrorContext({ a: null, b: undefined, c: 'value' })).toBe(true);
+    });
+
+    // Test: Objects with Date/Map/Set/RegExp values
+    it('returns true for objects with Date/Map/Set/RegExp values', () => {
+      expect(isValidAglaErrorContext({ timestamp: new Date() })).toBe(true);
+      expect(isValidAglaErrorContext({ data: new Map() })).toBe(true);
+      expect(isValidAglaErrorContext({ items: new Set() })).toBe(true);
+      expect(isValidAglaErrorContext({ pattern: /test/ })).toBe(true);
+    });
+
+    // Test: Empty object
+    it('returns true for empty objects', () => {
+      expect(isValidAglaErrorContext({})).toBe(true);
     });
   });
 

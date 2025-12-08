@@ -143,16 +143,51 @@ describe('Node.js Runtime: AglaError Basic Functionality', () => {
       expect(error instanceof globalThis.Error).toBe(true);
     });
 
-    it('should have valid stack trace', () => {
-      const error = new TestAglaError('TestError', 'Test');
-      expect(error.stack).toBeDefined();
-    });
-
     it('should be usable in Promise rejection', async () => {
       const promise = Promise.reject(
         new TestAglaError('PromiseError', 'Promise rejection test'),
       );
       await expect(promise).rejects.toThrow();
+    });
+  });
+
+  describe('Stack trace guarantees (Node.js)', () => {
+    it('✔1: stack should exist as string', () => {
+      const error = new TestAglaError('StackTest', 'Test message');
+      expect(typeof error.stack === 'string' || error.stack === undefined).toBe(true);
+      // In practice, Node.js always provides stack
+      expect(error.stack).toBeDefined();
+    });
+
+    it('✔2: stack should contain error name', () => {
+      const error = new TestAglaError('CustomErrorName', 'Test');
+      expect(error.stack).toContain(error.name);
+    });
+
+    it('✔3: stack should contain error message', () => {
+      const error = new TestAglaError('TestError', 'Unique message 12345');
+      expect(error.stack).toContain(error.message);
+      expect(error.stack).toContain('Unique message 12345');
+    });
+
+    it('✔4: chain() should create new stack for new instance', () => {
+      const cause = new Error('root cause');
+      const original = new TestAglaError('ChainTest', 'original error');
+      const originalStack = original.stack;
+
+      const chained = original.chain(cause);
+      const chainedStack = chained.stack;
+
+      // Both should have stack
+      expect(originalStack).toBeDefined();
+      expect(chainedStack).toBeDefined();
+
+      // Stack should be different (new instance = new stack)
+      expect(chainedStack).not.toBe(originalStack);
+
+      // New stack should still contain error name and message
+      expect(chainedStack).toContain(chained.name);
+      expect(chainedStack).toContain('original error');
     });
   });
 });

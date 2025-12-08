@@ -10,7 +10,7 @@
 import { describe, expect, it } from 'vitest';
 
 // Type definitions
-import { AG_isValidErrorSeverity } from '#shared/types/ErrorSeverity.types';
+import { AG_ERROR_SEVERITY, AG_isValidErrorSeverity } from '#shared/types/ErrorSeverity.types';
 
 // Test cases
 /**
@@ -27,11 +27,20 @@ describe('Given AG_ERROR_SEVERITY constant values', () => {
    * and special JavaScript values to ensure robust type checking.
    */
   describe('When validating with AG_isValidErrorSeverity', () => {
-    // Test: Edge case validation - case variants, whitespace, and numeric strings
-    it('Then エッジケース：should handle edge case values', () => {
+    // Test: Valid severity value acceptance
+    it('Then 正常系：should accept valid severity values', () => {
+      // Arrange & Act & Assert
+      expect(AG_isValidErrorSeverity(AG_ERROR_SEVERITY.FATAL)).toBe(true);
+      expect(AG_isValidErrorSeverity(AG_ERROR_SEVERITY.ERROR)).toBe(true);
+      expect(AG_isValidErrorSeverity(AG_ERROR_SEVERITY.WARNING)).toBe(true);
+      expect(AG_isValidErrorSeverity(AG_ERROR_SEVERITY.INFO)).toBe(true);
+    });
+
+    // Test: Invalid value rejection - edge cases and special values
+    it('Then エッジケース：should reject invalid values', () => {
       // Arrange
-      const edgeCaseValues = [
-        '',
+      const invalidValues = [
+        '', // whitespace
         ' ',
         '\t',
         '\n',
@@ -42,19 +51,7 @@ describe('Given AG_ERROR_SEVERITY constant values', () => {
         '0', // numeric strings
         '1',
         '-1',
-      ];
-
-      // Act & Assert
-      edgeCaseValues.forEach((value) => {
-        expect(AG_isValidErrorSeverity(value)).toBe(false);
-      });
-    });
-
-    // Test: Special JavaScript value rejection - Symbol, BigInt, and special numerics
-    it('Then エッジケース：should handle special JavaScript values', () => {
-      // Arrange
-      const specialValues = [
-        Symbol('error'),
+        Symbol('error'), // special JS values
         BigInt(1),
         Number.NaN,
         Number.POSITIVE_INFINITY,
@@ -62,7 +59,7 @@ describe('Given AG_ERROR_SEVERITY constant values', () => {
       ];
 
       // Act & Assert
-      specialValues.forEach((value) => {
+      invalidValues.forEach((value) => {
         expect(AG_isValidErrorSeverity(value)).toBe(false);
       });
     });
