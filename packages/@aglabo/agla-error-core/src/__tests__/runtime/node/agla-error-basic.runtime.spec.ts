@@ -123,7 +123,7 @@ describe('Node.js Runtime: AglaError Basic Functionality', () => {
         code: 'TEST_001',
         severity: AG_ERROR_SEVERITY.ERROR,
       });
-      const json = error.toJSON?.();
+      const json = error.toJSON();
       expect(json).toBeDefined();
     });
 

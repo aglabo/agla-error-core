@@ -7,10 +7,10 @@
 // https://opensource.org/licenses/MIT
 
 // Error handling types
-export * from './AglaError.types';
+export * from './AglaError.types.ts';
 export {
   AG_ERROR_SEVERITY,
   AG_ERROR_SEVERITY_VALUES,
   AG_isValidErrorSeverity,
-} from './ErrorSeverity.types';
-export type { AGT_ErrorSeverity } from './ErrorSeverity.types';
+} from './ErrorSeverity.types.ts';
+export type { AGT_ErrorSeverity } from './ErrorSeverity.types.ts';

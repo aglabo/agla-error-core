@@ -152,7 +152,7 @@ describe('Bun Runtime: AglaError Basic Functionality', () => {
       const promise = Promise.reject(
         new TestAglaError('PromiseError', 'Promise rejection test'),
       );
-      expect(promise).rejects.toThrow();
+      await expect(promise).rejects.toThrow();
     });
   });
 });

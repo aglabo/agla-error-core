@@ -7,8 +7,8 @@
 // https://opensource.org/licenses/MIT
 
 // Internal type definitions
-import type { AglaErrorContext, AglaErrorOptions } from './AglaErrorOptions.types.js';
-import type { AGT_ErrorSeverity } from './ErrorSeverity.types.js';
+import type { AglaErrorContext, AglaErrorOptions } from './AglaErrorOptions.types.ts';
+import type { AGT_ErrorSeverity } from './ErrorSeverity.types.ts';
 
 /**
  * Constructor type for AglaError and its subclasses.

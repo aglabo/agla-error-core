@@ -7,7 +7,7 @@
 // https://opensource.org/licenses/MIT
 
 // Internal type definitions
-import type { AGT_ErrorSeverity } from './ErrorSeverity.types.js';
+import type { AGT_ErrorSeverity } from './ErrorSeverity.types.ts';
 
 /**
  * Context information type for AglaError instances.

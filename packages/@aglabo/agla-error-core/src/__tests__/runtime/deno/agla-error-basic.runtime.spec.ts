@@ -6,7 +6,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-import { assert, assertEquals, assertExists } from 'https://deno.land/std@0.208.0/assert/mod.ts';
+import { assert, assertEquals, assertExists } from '@std/assert';
 
 // Import from built module (after build, use the ESM output)
 // For Deno, we import from the module directory which is built by tsup

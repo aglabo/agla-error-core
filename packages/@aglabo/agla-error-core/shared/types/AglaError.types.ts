@@ -10,13 +10,13 @@
 export type {
   AglaErrorContext,
   AglaErrorOptions,
-} from './AglaErrorOptions.types.js';
+} from './AglaErrorOptions.types.ts';
 
 export {
   guardAglaErrorContext,
   isValidAglaErrorContext,
-} from './AglaErrorOptions.types.js';
+} from './AglaErrorOptions.types.ts';
 
 // Re-export class and constructor type
-export type { AglaErrorConstructor } from './AglaError.class.js';
-export { AglaError } from './AglaError.class.js';
+export type { AglaErrorConstructor } from './AglaError.class.ts';
+export { AglaError } from './AglaError.class.ts';
