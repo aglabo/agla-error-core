@@ -6,34 +6,33 @@
   "author": "atsushifx <https://github.com/atsushifx>",
   "license": "MIT",
   "type": "module",
-  "main": "./module/index.js",
   "types": "./module/index.d.ts",
   "imports": {
-    "#/*": [
-      "./src/*",
-      "./*"
-    ],
-    "#shared/*": "./shared/*",
-    "#tests/*": "./tests/*"
+    "#src": "./src",
+    "#shared": "./shared",
+    "#tests": "./tests"
   },
   "exports": {
     ".": {
-      "import": "./module/index.js",
       "types": "./module/index.d.ts",
-      "require": "./lib/index.cjs"
+      "import": "./module/index.js"
     }
   },
   "files": [
-    "lib",
     "module"
   ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
+    "prepublishOnly": "pnpm build",
+    "build": "tsup --config ./configs/tsup.config.ts",
     "clean": "pnpm rimraf dist modules libs .cache",
     "format:dprint": "dprint fmt",
     "check:dprint": "dprint check",
     "check:types": "tsc --noEmit --incremental",
     "check:spells": "cspell --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
-    "build": "tsup --config ./configs/tsup.config.ts",
     "lint": "pnpm exec eslint --config ./configs/eslint.config.js --cache --cache-location .cache/eslint-cache/esLintCache ",
     "lint:types": "pnpm exec eslint --config ./configs/eslint.config.typed.js --cache --cache-location .cache/eslint-cache/esLintCacheTypes",
     "lint:deno": "pnpm exec deno lint",

@@ -1,15 +1,14 @@
 {
-  "name": "@aglabo/agla-error-core",
-  "_comment": "@(#) : Standardized error handling library for @aglabo ecosystem with AglaError class and ErrorSeverity",
-  "version": "0.0.1",
+  "name": "@aglabo/agla-error-monorepo",
+  "_comment": "@(#) : Standardized error handling library for @aglabo ecosystem",
+  "version": "0.1.0",
   "private": true,
-  "description": "Type-safe error handling core library for @aglabo ecosystem with standardized AglaError class, severity levels, and cross-runtime support (Node.js/Deno/Bun)",
+  "description": "Monorepo for @aglabo packages including agla-error-core and agla-logger-lite",
   "author": "atsushifx <https://github.com/atsushifx>",
   "license": "MIT",
   "type": "module",
   "keywords": [
     "error-handling",
-    "aglaerror",
     "severity",
     "typescript",
     "cross-runtime",
@@ -23,6 +22,9 @@
     "node": ">=20",
     "pnpm": ">=10"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@commitlint/types": "^20.2.0",
     "@eslint/js": "^9.39.1",
@@ -47,35 +49,30 @@
   },
   "scripts": {
     "prepare": "lefthook install",
-    "clean": "pnpm rimraf dist",
+    "clean": "pnpm -r exec rimraf dist module lib .cache",
     "format:dprint": "dprint fmt",
+
     "check:dprint": "dprint check",
-    "check:types": "pnpm run -r check:types",
+    "check:types": "pnpm -r check:types",
     "check:spells": "cspell  --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
-    "lint": "pnpm run -r lint",
-    "lint:types": "pnpm -r lint:types",
+
     "lint-all": "pnpm exec eslint --config ./configs/eslint.config.all.js --cache --cache-location .cache/eslint-cache/esLintCacheAll",
     "lint-all:types": "pnpm exec eslint --config ./configs/eslint.config.all.typed.js  --cache --cache-location .cache/eslint-cache/esLintCacheALL-typed",
+
     "lint:deno": "pnpm exec deno lint",
     "lint:bun": "pnpm exec eslint --config ./configs/eslint.config.bun.js --cache --cache-location .cache/eslint-cache/esLintCache-bun ",
+
     "lint:filenames": "pnpm exec ls-lint --config ./configs/ls-lint.yaml ",
     "lint:text": "textlint --config ./configs/textlintrc.yaml --ignore-path ./configs/.textlintignore --cache --cache-location .cache/textlint-cache/textlintCache ",
     "lint:markdown": "markdownlint-cli2 --config ./configs/.markdownlint.yaml ",
-    "test:all": "pnpm run -r test:all",
-    "test:develop": "pnpm run -r test:develop",
-    "test:functional": "pnpm run -r test:functional",
-    "test:ci": "pnpm run -r test:ci",
-    "test:e2e": "pnpm run -r test:e2e",
-    "test:runtime": "pnpm run -r test:runtime",
-    "test:coverage:all": "pnpm run -r test:coverage:all",
-    "test:coverage:unit": "pnpm -r run test:coverage:unit",
-    "test:coverage:functional": "pnpm -r run test:coverage:functional",
-    "test:coverage:integration": "pnpm -r run test:coverage:integration",
-    "test:coverage:e2e": "pnpm -r run test:coverage:e2e",
-    "test:coverage:runtime": "pnpm -r run test:coverage:runtime",
+    "lint:secrets": "secretlint --secretlintrc ./configs/secretlint.config.yaml --secretlintignore .gitignore --maskSecrets **/*",
+
+    "test:all": "pnpm -r test:all",
+    "test:coverage:all": "pnpm -r test:coverage:all",
+
     "coverage:analyze": "node scripts/analyze-coverage.js",
     "coverage:report": "pnpm run test:coverage:all && pnpm run coverage:analyze",
-    "lint:secrets": "secretlint --secretlintrc ./configs/secretlint.config.yaml --secretlintignore .gitignore --maskSecrets **/*",
+
     "sync:configs": "bash ./scripts/sync-configs.sh",
     "sync:configs:all": "pnpm -r sync:configs"
   }

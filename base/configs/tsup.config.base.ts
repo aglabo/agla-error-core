@@ -13,63 +13,50 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 // types
-import type { OnResolveArgs, OnResolveResult, Plugin as EsbuildPlugin } from 'esbuild';
+import type { Plugin as EsbuildPlugin } from 'esbuild';
 import type { Options } from 'tsup';
+
+// ✅ __dirname for ESM
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // plugins
 /**
  * 型安全な alias → 相対パス変換 plugin
  */
-export function createAliasRewritePlugin(
-  aliases: Record<string, string>,
-): EsbuildPlugin {
-  return {
-    name: 'alias-to-relative',
-    setup(build) {
-      build.onResolve(
-        { filter: /.*/ },
-        (args: OnResolveArgs): OnResolveResult | null => {
-          for (const key of Object.keys(aliases)) {
-            if (args.path.startsWith(key)) {
-              // 1. 物理パスへマッピング
-              const mapped = args.path.replace(key, aliases[key]);
+export const createAliasRewritePlugin = (aliases: Record<string, string>): EsbuildPlugin => ({
+  name: 'alias-to-relative',
+  setup(build) {
+    const baseDir = process.cwd();
+    build.onResolve({ filter: /.*/ }, (args) => {
+      for (const key in aliases) {
+        if (!args.path.startsWith(key)) { continue; }
 
-              // 2. 絶対パスを取得
-              const absPath = path.resolve(process.cwd(), mapped);
+        const mapped = args.path.replace(key, aliases[key]);
+        const abs = path.resolve(mapped); // CWD 基準で十分
+        const importerDir = args.importer ? path.dirname(args.importer) : baseDir;
+        const rel = path.relative(importerDir, abs);
 
-              // 3. importer からの相対パスに換算
-              const rel = path.relative(path.dirname(args.importer), absPath);
+        return { path: rel.startsWith('.') ? rel : `./${rel}` };
+      }
+      return null;
+    });
+  },
+});
 
-              return {
-                path: rel.startsWith('.') ? rel : `./${rel}`,
-              };
-            }
-          }
-          return null;
-        },
-      );
-    },
-  };
-}
-
-// ✅ __dirname for ESM
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
+// base configs: to be extended per package
 export const baseConfig: Options = {
   format: ['esm'],
   target: 'es2022',
+  platform: 'node',
   clean: true,
   dts: true,
   sourcemap: true,
   minify: false,
   splitting: false,
   shims: false,
-  outDir: './lib',
-  // overwrite it if sub-packages is necessary
-  // entry: [  ],
+  outDir: undefined, // overwrite it per package
+  entry: [], // must overwrite per package
 
-  // 他の設定ファイルが自由に差し込めるよう空配列にしておく
-  esbuildPlugins: [
-    // 後で configs/tsup.config.esm.ts 側から上書きする
+  esbuildPlugins: [ // set alias per package
   ],
 };
