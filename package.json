@@ -1,7 +1,7 @@
 {
   "name": "@aglabo/agla-error-core",
   "_comment": "@(#) : Standardized error handling library for @aglabo ecosystem with AglaError class and ErrorSeverity",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "description": "Type-safe error handling core library for @aglabo ecosystem with standardized AglaError class, severity levels, and cross-runtime support (Node.js/Deno/Bun)",
   "author": "atsushifx <https://github.com/atsushifx>",
