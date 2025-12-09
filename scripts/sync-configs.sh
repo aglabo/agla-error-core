@@ -28,6 +28,37 @@ FLAG_DRY_RUN=false
 
 ##  Functions
 
+# sync files matching pattern from repo root
+sync_files() {
+  local target_dir="$1"
+  local file_pattern="$2"
+  local label="$3"
+
+  echo "$label"
+
+  for file in $file_pattern; do
+    if [[ -f "$file" ]]; then
+      local basename="$(basename "$file")"
+      if $FLAG_DRY_RUN; then
+        echo "  [DRY-RUN] Would copy: $basename"
+      else
+        cp "$file" "$target_dir/$basename"
+        echo "  ✓ Copied: $basename"
+      fi
+    fi
+  done
+}
+
+# sync README.* files from repo root
+sync_readme() {
+  sync_files "$1" "$REPO_ROOT/README.*" "📄 [README.*]"
+}
+
+# sync LICENSE* files from repo root
+sync_license() {
+  sync_files "$1" "$REPO_ROOT/LICENSE*" "📜 [LICENSE*]"
+}
+
 # sync all config files
 sync_all_configs() {
   local target_dir="$1"
@@ -68,6 +99,8 @@ main() {
   echo "📦 Syncing configs ${CONFIG_DIR} to: $target_dir"
   $FLAG_DRY_RUN && echo "🚫 Dry run mode is active. No files will be written."
 
+  sync_readme "$target_dir" || exit 1
+  sync_license "$target_dir" || exit 1
   sync_all_configs "$target_dir" || exit 1
 
   echo "🎉 Sync complete!"

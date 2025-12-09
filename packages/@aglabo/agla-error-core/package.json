@@ -20,7 +20,11 @@
     }
   },
   "files": [
-    "module"
+    "module",
+    "LICENSE",
+    "LICENSE.ja",
+    "README.md",
+    "README.ja.md"
   ],
   "sideEffects": false,
   "engines": {
@@ -29,7 +33,7 @@
   "scripts": {
     "prepublishOnly": "pnpm exec tsup --config ./configs/tsup.config.ts",
     "build": "pnpm exec tsup --config ./configs/tsup.config.ts",
-    "clean": "pnpm rimraf module .cache",
+    "clean": "pnpm rimraf dist module .cache",
     "format:dprint": "dprint fmt",
     "check:dprint": "dprint check",
     "check:types": "tsc --noEmit --incremental",
