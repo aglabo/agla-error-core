@@ -1,8 +1,9 @@
 {
   "name": "@aglabo/agla-error-core",
   "_comment": "@(#) Error handling core module for @aglabo ecosystem with AglaError class and ErrorSeverity enum",
-  "version": "0.1.0",
   "description": "Standardized error handling core module for @aglabo ecosystem with AglaError class, ErrorSeverity enum, and cross-runtime support",
+  "version": "0.1.0",
+  "private": false,
   "author": "atsushifx <https://github.com/atsushifx>",
   "license": "MIT",
   "type": "module",
@@ -26,9 +27,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "prepublishOnly": "pnpm build",
-    "build": "tsup --config ./configs/tsup.config.ts",
-    "clean": "pnpm rimraf dist modules libs .cache",
+    "prepublishOnly": "pnpm exec tsup --config ./configs/tsup.config.ts",
+    "build": "pnpm exec tsup --config ./configs/tsup.config.ts",
+    "clean": "pnpm rimraf module .cache",
     "format:dprint": "dprint fmt",
     "check:dprint": "dprint check",
     "check:types": "tsc --noEmit --incremental",

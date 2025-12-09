@@ -16,7 +16,7 @@ If you discover a security vulnerability, please **do not open a public issue**.
 Instead, contact the maintainers directly via one of the following methods:
 
 - Private report via GitHub Security Advisories
-  [Create a security advisory](https://github.com/atsushifx/project-starter-template/security/advisories/new)
+  [Create a security advisory](https://github.com/aglabo/agla-error-core/security/advisories/new)
 
 <!-- textlint-disable ja-technical-writing/sentence-length -->
 
@@ -36,4 +36,4 @@ We follow a **responsible disclosure** process:
 
 ---
 
-*This security policy applies to all repositories under the `@atsushifx`.*
+*This security policy applies specifically to the `aglabo/agla-error-core` repository.*
