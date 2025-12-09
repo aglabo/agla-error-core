@@ -39,6 +39,5 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: false
-          base-branch: main # ← これが重要。Version PR は main に向く
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PR_PAT }}
