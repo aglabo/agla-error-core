@@ -54,7 +54,7 @@
     "vitest": "^4.0.15"
   },
   "scripts": {
-    "prepare": "lefthook install",
+    "prepare": "bash scripts/prepare.sh",
     "clean": "pnpm -r exec rimraf dist module lib .cache",
     "release:changeset": "pnpm exec changeset",
     "release:version": "pnpm exec changeset version",
