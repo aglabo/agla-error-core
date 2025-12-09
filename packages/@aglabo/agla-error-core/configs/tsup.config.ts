@@ -32,9 +32,9 @@ export default defineConfig({
   esbuildPlugins: [
     // alias rewrite plugin
     createAliasRewritePlugin({
-      '@shared': './shared',
-      '@runtime': './src/runtime',
-      '@tests': './tests',
+      '#shared': './shared',
+      '#runtime': './src/runtime',
+      '#tests': './tests',
     }),
   ],
 });

@@ -1,11 +1,14 @@
 {
   "name": "@aglabo/agla-error-monorepo",
   "_comment": "@(#) : Standardized error handling library for @aglabo ecosystem",
-  "version": "0.1.0",
   "private": true,
-  "description": "Monorepo for @aglabo packages including agla-error-core and agla-logger-lite",
+  "description": "Monorepo for @aglabo packages including agla-error-core",
   "author": "atsushifx <https://github.com/atsushifx>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aglabo/agla-error-core.git"
+  },
   "type": "module",
   "keywords": [
     "error-handling",
@@ -17,22 +20,25 @@
     "bun",
     "aglabo"
   ],
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.25.0",
   "engines": {
     "node": ">=20",
     "pnpm": ">=10"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/*/*"
   ],
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
     "@commitlint/types": "^20.2.0",
     "@eslint/js": "^9.39.1",
     "@ls-lint/ls-lint": "^2.3.1",
     "@types/bun": "^1.3.4",
-    "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "^8.48.1",
-    "@typescript-eslint/parser": "^8.48.1",
+    "@types/node": "^24.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.49.0",
+    "@typescript-eslint/parser": "^8.49.0",
     "@vitest/coverage-v8": "^4.0.15",
     "concurrently": "^9.2.1",
     "esbuild": "^0.27.1",
@@ -43,36 +49,35 @@
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.1",
+    "typescript-eslint": "^8.49.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.15"
   },
   "scripts": {
     "prepare": "lefthook install",
     "clean": "pnpm -r exec rimraf dist module lib .cache",
+    "release:changeset": "pnpm exec changeset",
+    "release:version": "pnpm exec changeset version",
+    "release:publish": "pnpm publish -r --access public",
+    "changeset": "pnpm exec changeset",
+    "version-packages": "pnpm exec changeset version",
+    "publish-packages": "pnpm exec changeset publish",
     "format:dprint": "dprint fmt",
-
     "check:dprint": "dprint check",
     "check:types": "pnpm -r check:types",
     "check:spells": "cspell  --config .vscode/cspell.json --cache --cache-location .cache/cspell/cSpellCache",
-
     "lint-all": "pnpm exec eslint --config ./configs/eslint.config.all.js --cache --cache-location .cache/eslint-cache/esLintCacheAll",
     "lint-all:types": "pnpm exec eslint --config ./configs/eslint.config.all.typed.js  --cache --cache-location .cache/eslint-cache/esLintCacheALL-typed",
-
     "lint:deno": "pnpm exec deno lint",
     "lint:bun": "pnpm exec eslint --config ./configs/eslint.config.bun.js --cache --cache-location .cache/eslint-cache/esLintCache-bun ",
-
     "lint:filenames": "pnpm exec ls-lint --config ./configs/ls-lint.yaml ",
     "lint:text": "textlint --config ./configs/textlintrc.yaml --ignore-path ./configs/.textlintignore --cache --cache-location .cache/textlint-cache/textlintCache ",
     "lint:markdown": "markdownlint-cli2 --config ./configs/.markdownlint.yaml ",
     "lint:secrets": "secretlint --secretlintrc ./configs/secretlint.config.yaml --secretlintignore .gitignore --maskSecrets **/*",
-
     "test:all": "pnpm -r test:all",
     "test:coverage:all": "pnpm -r test:coverage:all",
-
     "coverage:analyze": "node scripts/analyze-coverage.js",
     "coverage:report": "pnpm run test:coverage:all && pnpm run coverage:analyze",
-
     "sync:configs": "bash ./scripts/sync-configs.sh",
     "sync:configs:all": "pnpm -r sync:configs"
   }
