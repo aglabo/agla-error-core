@@ -2,6 +2,7 @@
 AGT
 esm
 jscoverage
+npmjs
 sdd
 tsup
 vite
