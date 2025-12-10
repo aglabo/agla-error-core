@@ -58,7 +58,7 @@
     "clean": "pnpm -r exec rimraf dist module lib .cache",
     "release:changeset": "pnpm exec changeset",
     "release:version": "pnpm exec changeset version",
-    "release:publish": "pnpm publish -r --access public",
+    "release:publish": "pnpm publish -r --report-summary --access public",
     "changeset": "pnpm exec changeset",
     "version-packages": "pnpm exec changeset version",
     "publish-packages": "pnpm exec changeset publish",
