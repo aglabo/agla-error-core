@@ -11,7 +11,7 @@ name: "Create Version Packages PR"
 on:
   push:
     branches:
-      - "releases/*" # Releaseブランチで動かす
+      - "releases/*"
   workflow_dispatch:
 
 permissions:
@@ -21,25 +21,32 @@ permissions:
 jobs:
   version:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - uses: actions/setup-node@v6
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
         with:
           node-version: 22
-          registry-url: "https://registry.npmjs.org/"
+          registry-url: https://registry.npmjs.org/
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Create Version Packages PR
-        uses: changesets/action@v1
+      - name: Configure git to use PAT
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.PR_PAT }}@github.com/aglabo/agla-error-core.git
+
+      - name: Create Version PR
+        uses: changesets/action@8eb63fb4cfc7f9643537c7d39d0b68c835012a19 # v1
         with:
           publish: false
+          branch: ${{ github.ref }} # ここが重要
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PR_PAT }}
