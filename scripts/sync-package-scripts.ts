@@ -9,8 +9,8 @@
 
 // libs
 import fs from 'fs';
+import process from 'node:process';
 import path from 'path';
-import process from "node:process";
 
 // global
 let IS_DRY_RUN = false;
