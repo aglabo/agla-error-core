@@ -1,5 +1,7 @@
 # @aglabo/agla-error-core
 
+<!-- markdownlint-disable no-duplicate-heading -->
+
 ## 0.1.0
 
 ### Minor Changes
