@@ -9,9 +9,11 @@
 name: "Publish Packages"
 
 on:
-  push:
-    tags:
-      - "@aglabo/*@*"
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - "releases/*"
   workflow_dispatch:
 
 permissions:
@@ -20,13 +22,14 @@ permissions:
 
 jobs:
   publish:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'changeset-release/')
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
         with:
-          persist-credentials: false
+          persist-credentials: true
 
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
         with:
@@ -39,13 +42,30 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Get package version
+        id: package_version
+        run: |
+          VERSION=$(node -p "require('./packages/@aglabo/agla-error-core/package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=@aglabo/agla-error-core@$VERSION" >> $GITHUB_OUTPUT
+
       - name: Publish to npm
         run: pnpm publish -r --report-summary --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
+      - name: Create Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.package_version.outputs.tag }}" -m "Release ${{ steps.package_version.outputs.version }}"
+          git push origin "${{ steps.package_version.outputs.tag }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.package_version.outputs.tag }}
+          name: "Release ${{ steps.package_version.outputs.version }}"
           generate_release_notes: true
