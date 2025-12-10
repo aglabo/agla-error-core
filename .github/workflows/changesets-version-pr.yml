@@ -19,18 +19,40 @@ permissions:
   pull-requests: write
 
 jobs:
-  version:
+  check-changesets:
+    runs-on: ubuntu-latest
+    outputs:
+      has-changesets: ${{ steps.check.outputs.has-changesets }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for changesets
+        id: check
+        run: |
+          if [ -d ".changeset" ] && [ -n "$(find .changeset -name '*.md' ! -name 'README.md' -type f)" ]; then
+            echo "has-changesets=true" >> $GITHUB_OUTPUT
+            echo "✓ Changesets found"
+          else
+            echo "has-changesets=false" >> $GITHUB_OUTPUT
+            echo "ℹ No changesets found - skipping workflow"
+          fi
+
+  release:
+    needs: check-changesets
+    if: needs.check-changesets.outputs.has-changesets == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
@@ -44,9 +66,21 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.PR_PAT }}@github.com/aglabo/agla-error-core.git
 
       - name: Create Version PR
-        uses: changesets/action@8eb63fb4cfc7f9643537c7d39d0b68c835012a19 # v1
+        id: changesets
+        uses: changesets/action@v1
         with:
-          publish: false
+          version: true
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
           branch: "${{ github.ref_name }}"
+          publish: false
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.PR_PAT }}
+        continue-on-error: true
+
+      - name: Check Version PR Result
+        if: steps.changesets.outcome == 'failure'
+        run: |
+          echo "⚠️ No version changes to commit"
+          exit 0
