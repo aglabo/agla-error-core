@@ -76,7 +76,7 @@
     "lint:secrets": "secretlint --secretlintrc ./configs/secretlint.config.yaml --secretlintignore .gitignore --maskSecrets **/*",
     "test:all": "pnpm -r test:all",
     "test:coverage:all": "pnpm -r test:coverage:all",
-    "coverage:analyze": "node scripts/analyze-coverage.js",
+    "coverage:analyze": "tsx scripts/analyze-coverage.ts",
     "coverage:report": "pnpm run test:coverage:all && pnpm run coverage:analyze",
     "sync:configs": "bash ./scripts/sync-configs.sh",
     "sync:configs:all": "pnpm -r sync:configs"
