@@ -21,21 +21,25 @@ permissions:
 jobs:
   check-changesets:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       has-changesets: ${{ steps.check.outputs.has-changesets }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Check for changesets
         id: check
         run: |
-          if [ -d ".changeset" ] && [ -n "$(find .changeset -name '*.md' ! -name 'README.md' -type f)" ]; then
-            echo "has-changesets=true" >> $GITHUB_OUTPUT
+          if [ -d ".changeset" ] && [ -n "$(find ".changeset" -name '*.md' ! -name 'README.md' -type f)" ]; then
+            echo "has-changesets=true" >> "$GITHUB_OUTPUT"
             echo "✓ Changesets found"
           else
-            echo "has-changesets=false" >> $GITHUB_OUTPUT
+            echo "has-changesets=false" >> "$GITHUB_OUTPUT"
             echo "ℹ No changesets found - skipping workflow"
           fi
 
@@ -44,15 +48,18 @@ jobs:
     if: needs.check-changesets.outputs.has-changesets == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v6
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
@@ -67,7 +74,7 @@ jobs:
 
       - name: Create Version PR
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         with:
           version: true
           commit: "chore(release): version packages"
