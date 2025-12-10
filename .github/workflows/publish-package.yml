@@ -50,9 +50,10 @@ jobs:
           echo "tag=@aglabo/agla-error-core@$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Publish to npm
-        run: pnpm run release:publish
+        run: pnpm release:publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
       - name: Create Git Tag
         run: |
