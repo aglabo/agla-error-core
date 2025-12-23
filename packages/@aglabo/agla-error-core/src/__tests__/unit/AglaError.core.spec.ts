@@ -371,7 +371,7 @@ describe('Given AglaError with large or heavy contexts', () => {
     // Verify context is properly stored
     expect(error.context).toBe(largeContext);
     expect(error.context?.data).toHaveLength(1000);
-    expect((error.context?.metadata as { version: string })?.version).toBe('1.0.0');
+    expect((error.context.metadata as { version: string }).version).toBe('1.0.0');
     expect(error.name).toBe('TestAglaError');
   });
 });
