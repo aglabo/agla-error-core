@@ -11,7 +11,7 @@ filters:
   comments: true
   allowlist:
     allowlistConfigPaths:
-      - .textlint/allowlist.yml
+      - ./.textlint/allowlist.yml
 rules:
   preset-ja-technical-writing:
     sentence-length:
@@ -27,7 +27,6 @@ rules:
     ja-no-mixed-period:
       allowPeriodMarks:
         - ":"
-        - "✨"
     no-doubled-joshi:
       strict: false
   "@textlint-ja/preset-ai-writing": true
@@ -43,5 +42,5 @@ rules:
     dictURL: "https://atsushifx.github.io/proof-dictionary/"
   prh:
     rulePaths:
-      - ./.textlint/dict/prh.yml
-      - ./.textlint/dict/prh-my-settings.yml
+      - ./.textlint/dicts/prh.yml
+      - ./.textlint/dicts/prh-my-settings.yml
