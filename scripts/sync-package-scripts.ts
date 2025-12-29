@@ -9,7 +9,6 @@
 
 // libs
 import fs from 'fs';
-import process from 'node:process';
 import path from 'path';
 
 // global
@@ -31,19 +30,24 @@ function resolvePaths(targetDir: string, repoRoot: string): {
   };
 }
 
-interface PackageJson {
-  scripts?: Record<string, string>;
-  [key: string]: unknown;
-}
-
-function loadJson(filePath: string): PackageJson {
+function loadJson(filePath: string): any {
   if (!fs.existsSync(filePath)) {
     throw new Error(`File not found: ${filePath}`);
   }
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as PackageJson;
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 }
 
-function updatePackageJson(targetPath: string, updatedPkg: PackageJson): void {
+function mergeScripts(
+  original: Record<string, string>,
+  base: Record<string, string>,
+): Record<string, string> {
+  return {
+    ...original,
+    ...base,
+  };
+}
+
+function updatePackageJson(targetPath: string, updatedPkg: Record<string, any>): void {
   if (IS_DRY_RUN) {
     console.log('🔍 Merged scripts (dry-run):');
     console.log(JSON.stringify(updatedPkg.scripts, null, 2));

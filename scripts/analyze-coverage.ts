@@ -277,64 +277,86 @@ const calculateStats = (coverageData: CoverageData): Stats => ({
 });
 
 /**
- * Merge two coverage data objects (pure function)
+ * Merge numeric maps taking the maximum value for each key
+ * Used for statements, functions, and lines coverage data
+ */
+const mergeNumericMaps = (
+  existing: Record<string, number> = {},
+  incoming: Record<string, number> = {},
+): Record<string, number> =>
+  Object.entries(incoming).reduce(
+    (merged, [key, value]) => ({
+      ...merged,
+      [key]: Math.max(merged[key] || 0, value || 0),
+    }),
+    existing,
+  );
+
+/**
+ * Merge branch arrays taking the maximum value for each index
+ */
+const mergeBranchArrays = (
+  existing: number[] = [],
+  incoming: number[] = [],
+): number[] => incoming.map((value, index) => Math.max(existing[index] || 0, value || 0));
+
+/**
+ * Merge branch maps
+ */
+const mergeBranchMaps = (
+  existing: BranchMap = {},
+  incoming: BranchMap = {},
+): BranchMap =>
+  Object.entries(incoming)
+    .filter(([, branchArray]) => Array.isArray(branchArray))
+    .reduce(
+      (merged, [key, branchArray]) => ({
+        ...merged,
+        [key]: mergeBranchArrays(merged[key], branchArray),
+      }),
+      existing,
+    );
+
+/**
+ * Merge two file coverage data objects
+ */
+const mergeFileCoverage = (
+  existing: FileCoverageData,
+  incoming: FileCoverageData,
+): FileCoverageData => ({
+  ...existing,
+  ...(incoming.s && { s: mergeNumericMaps(existing.s, incoming.s) }),
+  ...(incoming.f && { f: mergeNumericMaps(existing.f, incoming.f) }),
+  ...(incoming.b && { b: mergeBranchMaps(existing.b, incoming.b) }),
+  ...(incoming.l && { l: mergeNumericMaps(existing.l, incoming.l) }),
+  ...(incoming.statementMap && {
+    statementMap: { ...existing.statementMap, ...incoming.statementMap },
+  }),
+});
+
+/**
+ * Merge coverage data from a single source into accumulated coverage
+ */
+const mergeSingleCoverage = (
+  accumulated: CoverageData,
+  incoming: CoverageData,
+): CoverageData =>
+  Object.entries(incoming).reduce(
+    (merged, [filePath, fileData]) => ({
+      ...merged,
+      [filePath]: merged[filePath]
+        ? mergeFileCoverage(merged[filePath], fileData)
+        : fileData,
+    }),
+    accumulated,
+  );
+
+/**
+ * Merge multiple coverage data objects (pure function)
+ * Composes individual merge functions into a complete merging pipeline
  */
 const mergeCoverage = (coverageList: readonly CoverageData[]): CoverageData =>
-  coverageList.reduce((merged, coverage) => {
-    Object.entries(coverage).forEach(([filePath, fileData]) => {
-      if (!merged[filePath]) {
-        merged[filePath] = JSON.parse(JSON.stringify(fileData)) as FileCoverageData;
-        return;
-      }
-
-      const existing = merged[filePath];
-
-      // Merge statements
-      if (fileData.s) {
-        existing.s = existing.s || {};
-        Object.entries(fileData.s).forEach(([key, value]) => {
-          existing.s![key] = Math.max(existing.s![key] || 0, value || 0);
-        });
-      }
-
-      // Merge functions
-      if (fileData.f) {
-        existing.f = existing.f || {};
-        Object.entries(fileData.f).forEach(([key, value]) => {
-          existing.f![key] = Math.max(existing.f![key] || 0, value || 0);
-        });
-      }
-
-      // Merge branches
-      if (fileData.b) {
-        existing.b = existing.b || {};
-        Object.entries(fileData.b).forEach(([key, branchArray]) => {
-          if (!existing.b![key]) {
-            existing.b![key] = [];
-          }
-          if (Array.isArray(branchArray)) {
-            branchArray.forEach((value, index) => {
-              existing.b![key][index] = Math.max(existing.b![key][index] || 0, value || 0);
-            });
-          }
-        });
-      }
-
-      // Merge lines
-      if (fileData.l) {
-        existing.l = existing.l || {};
-        Object.entries(fileData.l).forEach(([key, value]) => {
-          existing.l![key] = Math.max(existing.l![key] || 0, value || 0);
-        });
-      } else if (fileData.statementMap) {
-        // v8 format: preserve statementMap
-        existing.statementMap = existing.statementMap || {};
-        Object.assign(existing.statementMap, fileData.statementMap);
-      }
-    });
-
-    return merged;
-  }, {} as CoverageData);
+  coverageList.reduce(mergeSingleCoverage, {});
 
 // ============================================================================
 // I/O and Side Effects
@@ -363,7 +385,7 @@ const loadCoverageData = (pathInfo: PathInfo): Result<CoverageResult, string> =>
  * Display warning message
  */
 const displayWarning = (message: string): void => {
-  console.warn(`⚠️  ${message}`);
+  console.warn(`Warning: ${message}`);
 };
 
 /**
@@ -381,12 +403,12 @@ const displayReport = (
   layerStats: ReadonlyMap<string, Stats>,
   totalStats: Stats,
 ): void => {
-  console.log('📊 agla-error-core Integrated Coverage Analysis\n');
+  console.log('agla-error-core Integrated Coverage Analysis\n');
   console.log('='.repeat(80));
 
   // Display stats grouped by package and test layer
   PACKAGES.forEach((pkg) => {
-    console.log(`\n📦 ${pkg}:`);
+    console.log(`\n[${pkg}]:`);
     TEST_LAYERS.forEach((layer) => {
       const key = `${pkg}-${layer}`;
       const stats = layerStats.get(key);
@@ -400,7 +422,7 @@ const displayReport = (
   });
 
   console.log('\n' + '='.repeat(80));
-  console.log('📈 **Integrated Coverage** (all packages and test layers combined):');
+  console.log('**Integrated Coverage** (all packages and test layers combined):');
   console.log(
     `   Statements: ${totalStats.statements.covered}/${totalStats.statements.total} (${totalStats.statements.pct}%)`,
   );
@@ -416,7 +438,7 @@ const displayReport = (
   console.log('='.repeat(80));
 
   // Summary table
-  console.log('\n📋 Summary:');
+  console.log('\nSummary:');
   console.log(`    Statements: ${totalStats.statements.pct}%`);
   console.log(`    Functions:  ${totalStats.functions.pct}%`);
   console.log(`    Branches:   ${totalStats.branches.pct}%`);
@@ -452,7 +474,7 @@ const main = (): void => {
 
     // Check if we have any data
     if (successes.length === 0) {
-      console.error('❌ No coverage files found');
+      console.error('No coverage files found');
       process.exit(1);
     }
 
@@ -472,12 +494,12 @@ const main = (): void => {
     // Display the report
     displayReport(layerStats, totalStats);
 
-    console.log('\n✅ Coverage analysis completed');
+    console.log('\nCoverage analysis completed');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack : undefined;
 
-    console.error('❌ Coverage analysis error:', message);
+    console.error('Coverage analysis error:', message);
     if (stack) {
       console.error(stack);
     }

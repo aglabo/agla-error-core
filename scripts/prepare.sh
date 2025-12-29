@@ -8,10 +8,10 @@
 # https://opensource.org/licenses/MIT
 #
 
-# CI環境かどうかを判定する関数
+# Function to determine if running in CI environment
 is_ci_environment() {
-  # 一般的なCI環境変数をチェック
-  [ -n "$CI" ] ||           # 汎用CI環境変数
+  # Check for common CI environment variables
+  [ -n "$CI" ] ||             # Generic CI environment variable
   [ -n "$GITHUB_ACTIONS" ] || # GitHub Actions
   [ -n "$GITLAB_CI" ] ||      # GitLab CI
   [ -n "$CIRCLECI" ] ||       # CircleCI
@@ -19,14 +19,15 @@ is_ci_environment() {
   [ -n "$TRAVIS" ]            # Travis CI
 }
 
-# メイン処理
+# Main processing
 main() {
   if is_ci_environment; then
     echo "CI environment detected. Skipping lefthook install."
     exit 0
   fi
 
-  echo "Local development environment detected. Installing lefthook..."
+  echo "Local development environment detected. "
+  # Setup for local environment
   lefthook install
 }
 
