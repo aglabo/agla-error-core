@@ -92,10 +92,17 @@ main() {
   local config_type="${2:-}"
   local third_arg="${3:-}"
 
-  # Display usage and exit if no arguments or --help/-h is provided
-  if [[ -z "$target_dir" || -z "$config_type" || "$target_dir" == "--help" || "$target_dir" == "-h" ]]; then
- 	  print_usage
+  # Display usage and exit if --help/-h is provided
+  if [[ "$target_dir" == "--help" || "$target_dir" == "-h" ]]; then
+    print_usage
     exit 0
+  fi
+
+  # Error if required arguments are missing
+  if [[ -z "$target_dir" || -z "$config_type" ]]; then
+    echo "Error: target_dir and config_type are required arguments"
+    print_usage
+    exit 1
   fi
 
   if [[ "$third_arg" == "--dry-run" ]]; then
