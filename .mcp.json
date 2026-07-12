@@ -2,33 +2,33 @@
   "mcpServers": {
     "serena-mcp": {
       "type": "stdio",
-      "command": "uvx",
+      "command": "serena",
       "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
         "start-mcp-server",
-        "--context",
-        "ide-assistant",
-        "--project",
-        "."
+        "--project-from-cwd"
       ]
     },
-    "codex-mcp": {
+    "cocoindex-code": {
       "type": "stdio",
-      "command": "codex",
+      "command": "cocoindex-code",
       "args": [
-        "mcp-server"
-      ],
-      "env": {}
-    },
-    "lsmcp": {
-      "type": "stdio",
-      "command": "lsmcp",
-      "args": [
-        "-p",
-        "typescript"
+        "serve"
       ]
+    },
+    "codegraph-mcp": {
+      "type": "stdio",
+      "command": "codegraph",
+      "args": [
+        "serve",
+        "--mcp"
+      ]
+    },
+    "obsidian-vault-mcp": {
+      "type": "http",
+      "url": "http://localhost:3001/mcp",
+      "headers": {
+        "Authorization": "Bearer ${OBSIDIAN_API_KEY}"
+      }
     }
   }
 }
