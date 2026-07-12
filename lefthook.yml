@@ -1,7 +1,7 @@
 # src: lefthook.yml
 # @(#) : lefthook config
 #
-# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
+# Copyright (c) 2025- atsushifx <http://github.com/atsushifx>
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
@@ -9,8 +9,8 @@
 pre-commit:
   parallel: true
   commands:
-    gitleaks:
-      run: gitleaks protect --config ./configs/gitleaks.toml --staged
+    betterleaks:
+      run: betterleaks protect --config ./configs/betterleaks.toml --staged
 
     secretlint:
       glob: "**/*"
@@ -20,11 +20,13 @@ pre-commit:
         --secretlintignore .gitignore
         --maskSecrets
         "{staged_files}"
+      skip:
+        - empty
 
 prepare-commit-msg:
   commands:
     prepare-message-script:
-      run: bash -c './scripts/prepare-commit-msg.sh --model gpt-5.2 --git-buffer'
+      run: bash -c './scripts/prepare-commit-msg.sh --model gpt-5.4-mini --output "{1}"'
 
 # check commit message as Conventional Commit
 commit-msg:

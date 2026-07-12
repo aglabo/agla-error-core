@@ -2,7 +2,7 @@
 # src: ./scripts/prepare-commit-msg.sh
 # @(#) : Prepare commit message using Codex CLI
 #
-# Copyright (c) 2025 atsushifx <http://github.com/atsushifx>
+# Copyright (c) 2026- atsushifx <http://github.com/atsushifx>
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
@@ -29,7 +29,7 @@
 #   Features:
 #   - Conventional Commits format compliance
 #   - Context-aware message generation
-#   - Dual output modes: stdout or Git buffer
+#   - Dual output modes: stdout or file output
 #   - Skips if existing message detected (hook mode)
 #   - Safe failure: markers not found → error exit
 #
@@ -38,17 +38,19 @@
 #   prepare-commit-msg.sh
 #
 #   # Output to Git commit buffer (hook mode)
-#   prepare-commit-msg.sh --git-buffer
+#   prepare-commit-msg.sh --output .git/COMMIT_EDITMSG
 #
 #   # Use specific AI model
-#   prepare-commit-msg.sh --git-buffer --model claude-sonnet-4-5
+#   prepare-commit-msg.sh --output .git/COMMIT_EDITMSG --model claude-sonnet-4-5
 #
 # @exitcode 0 Success or skipped (existing message found)
 # @exitcode 1 Error during generation (AI output invalid, markers missing, etc.)
 #
 # @author atsushifx
-# @version 2.0.0
+# @version 1.3.0
 # @license MIT
+
+# shellcheck disable=SC2034
 
 set -euo pipefail
 
@@ -71,20 +73,16 @@ readonly SCRIPT_DIR
 # ============================================================================
 
 ##
-# @description Git commit message file path (default: .git/COMMIT_EDITMSG)
-GIT_COMMIT_MSG=".git/COMMIT_EDITMSG"
-
-##
-# @description Flag to output to stdout (true) or Git buffer (false, default: true)
-FLAG_OUTPUT_TO_STDOUT=true
+# @description Output file path for commit message (empty string means stdout)
+OUTPUT_FILE=""
 
 ##
 # @description AI model name for commit message generation (default: sonnet)
-DEFAULT_AI_MODEL="opus"
+DEFAULT_AI_MODEL="sonnet"
 
 ###
 # @description AI model name for commit message generation (default: sonnet)
-AI_MODEL="opus"
+AI_MODEL="sonnet"
 
 ##
 # @description Path to commit message generator template
@@ -113,79 +111,72 @@ display_help() {
   local script_name
   script_name=$(basename "$0")
   cat <<EOF
-Usage: $script_name [OPTIONS] [commit_msg_file]
+Usage: $script_name [OPTIONS]
 
 Generate Conventional Commits format messages by analyzing staged changes
 and recent commit history using AI.
 
 Options:
-  --git-buffer, --to-buffer   Output to Git commit buffer (default: stdout)
+  --output FILE, -o FILE      Write commit message to FILE instead of stdout
   --model MODEL               AI model name (default: sonnet)
                               Supported: gpt-*, o1-*, claude-*, haiku, sonnet, opus
   -h, --help                  Show this help message
-
-Arguments:
-  [commit_msg_file]           Git commit message file (default: .git/COMMIT_EDITMSG)
 
 Examples:
   # Output to stdout
   $script_name
 
   # Output to Git buffer with specific model
-  $script_name --git-buffer --model claude-sonnet-4-5
+  $script_name --output .git/COMMIT_EDITMSG --model claude-sonnet-4-5
 
-  # Custom commit message file
-  $script_name /path/to/COMMIT_EDITMSG
+  # Short option form
+  $script_name -o .git/COMMIT_EDITMSG
 EOF
 }
 
 ##
 # @description Parse command-line options and set configuration
 # @arg $@ string Command-line arguments to parse
-# @option --git-buffer|--to-buffer Output to Git commit buffer (.git/COMMIT_EDITMSG)
+# @option --output FILE|-o FILE Write commit message to FILE instead of stdout
 # @option --model MODEL Specify AI model name (default: sonnet)
 # @option -h|--help Display usage information
 # @example
 #   parse_options "$@"
-#   parse_options --model claude-sonnet-4-5 --to-buffer
+#   parse_options --model claude-sonnet-4-5 --output .git/COMMIT_EDITMSG
 # @exitcode 0 If parsing succeeds
 # @exitcode 1 If unknown option provided or required argument missing
-# @global FLAG_OUTPUT_TO_STDOUT
-# @global GIT_COMMIT_MSG
+# @global OUTPUT_FILE
 # @global AI_MODEL
 parse_options() {
   while [[ $# -gt 0 ]]; do
     case $1 in
-      --git-buffer|--to-buffer)
-        FLAG_OUTPUT_TO_STDOUT=false
-        shift
-        ;;
-      --model)
-        if [[ -z "${2:-}" ]]; then
-          echo "Error: --model requires an argument" >&2
-          exit 1
-        fi
-        AI_MODEL="$2"
-        shift 2
-        ;;
-      --help|-h)
-        display_help
-        exit 0
-        ;;
-      -*)
-        echo "Error: Unknown option: $1" >&2
+    --output | -o)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --output requires an argument" >&2
         exit 1
-        ;;
-      *)
-        # Non-option argument treated as commit message file
-        GIT_COMMIT_MSG="$1"
-        shift
-        ;;
+      fi
+      OUTPUT_FILE="$2"
+      shift 2
+      ;;
+    --model)
+      if [[ -z "${2:-}" ]]; then
+        echo "Error: --model requires an argument" >&2
+        exit 1
+      fi
+      AI_MODEL="$2"
+      shift 2
+      ;;
+    --help | -h)
+      display_help
+      exit 0
+      ;;
+    -*)
+      echo "Error: Unknown option: $1" >&2
+      exit 1
+      ;;
     esac
   done
 }
-
-
 
 ##
 # @description Check if an existing commit message is present in file
@@ -218,6 +209,7 @@ has_existing_message() {
 #   context=$(make_context_block)
 #   echo "$context" | claude -p
 make_context_block() {
+  echo ""
   echo "===== GIT LOGS ====="
   git log --oneline -10 || echo "No logs available."
   echo ""
@@ -226,7 +218,6 @@ make_context_block() {
   git diff --cached || echo "No diff available."
   echo "===== END DIFF ====="
 }
-
 
 ##
 # @description Set AI command array for specified model
@@ -260,29 +251,35 @@ get_model_command() {
   local model="${1:-${DEFAULT_AI_MODEL}}"
 
   case "$model" in
-    # OpenAI models
-    gpt-* | o1-*)
-      AI_COMMAND=("codex" "exec" "--model" "${model}")
-      ;;
+  # OpenAI models
+  gpt-* | o1-*)
+    AI_COMMAND=("codex" "exec" "--model" "${model}")
+    ;;
 
-    # Anthropic (Claude) models
-    claude-* | haiku | sonnet | opus)
-      AI_COMMAND=("claude" "--print" "--model" "${model}")
-      ;;
+  # Anthropic (Claude) models
+  claude-* | haiku | sonnet | opus)
+    # execute claude with no-mcp, accept edits permission
+    AI_COMMAND=("claude" "-p" "--permission-mode" "acceptEdits" "--strict-mcp-config" "--mcp-config" '{"mcpServers":{}}' "--model" "${model}")
+    ;;
 
-    # OpenCode models (provider/model format)
-    */*)
-      AI_COMMAND=("opencode" "run" "--model" "${model}")
-      ;;
+  # Copilot models (copilot/model format)
+  copilot/*)
+    local copilot_model="${model#copilot/}"
+    AI_COMMAND=("copilot" "--model" "${copilot_model}")
+    ;;
 
-    # Unsupported model
-    *)
-      echo "Error: Unsupported model: ${model}" >&2
-      return 1
-      ;;
+  # OpenCode models (provider/model format)
+  */*)
+    AI_COMMAND=("opencode" "run" "--model" "${model}")
+    ;;
+
+  # Unsupported model
+  *)
+    echo "Error: Unsupported model: ${model}" >&2
+    return 1
+    ;;
   esac
 }
-
 
 ##
 # @description Generate commit message using configured AI model
@@ -291,19 +288,25 @@ get_model_command() {
 # 1. Loads commit-message-generator.md template
 # 2. Appends git context (logs + diff) as AI input
 # 3. Pipes combined input to AI command
-# 4. Extracts message between === commit header === markers
+# 4. Extracts message from either markdown code blocks or header markers
 # 5. Validates markers exist and message is non-empty
 #
 # **Input Format to AI:**
 #   cat template.md | cat logs | cat diff | <AI_COMMAND>
 #
-# **Required Template Output:**
-#   === commit header ===
-#   <commit message here>
-#   === commit footer ===
+# **Supported Output Formats:**
+#   Format 1 (Header markers - traditional):
+#     === commit header ===
+#     <commit message here>
+#     === commit footer ===
+#
+#   Format 2 (Markdown code block - fallback):
+#     ```text
+#     <commit message here>
+#     ```
 #
 # Execution flow:
-#   Template + Context → AI → Validate Markers → Extract Message → Return
+#   Template + Context → AI → Try Markers → Fallback to Code Block → Return
 #
 # @arg $1 string Optional test message (for testing/debugging only)
 # @return 0 If generation and validation succeeds
@@ -328,14 +331,17 @@ generate_commit_message() {
 
   # Set up AI command for the configured model
   get_model_command "${AI_MODEL}" || return 1
+  local diff_output
+
+  diff_output=$({
+    cat .claude/agents/commit-message-generator.md
+    echo ""
+    make_context_block
+  })
 
   local full_output
-  full_output=$({
-    cat .claude/agents/commit-message-generator.md
-    echo
-    make_context_block
-  } | "${AI_COMMAND[@]}"
-  )
+
+  full_output=$(echo "$diff_output" | "${AI_COMMAND[@]}")
 
   # Extract the commit message from AI response
   # Skip context output and extract only the message between markers
@@ -346,23 +352,32 @@ generate_commit_message() {
     after_diff="$full_output"
   fi
 
-  # Validate that message markers exist in AI output
-  if ! echo "$after_diff" | grep -q '^=== commit header ==='; then
-    echo "Error: commit message markers not found in AI output" >&2
-    echo "Debug output:" >&2
-    echo "$full_output" >&2
-    return 1
+  local extracted_msg=""
+
+  # Format 1: Try extracting from standard markers (traditional format)
+  # Also handles backtick-wrapped markers: `=== commit header ===`
+  # shellcheck disable=SC2016
+  if echo "$after_diff" | grep -qE '^`?=== commit header ===`?'; then
+    # shellcheck disable=SC2016
+    extracted_msg=$(echo "$after_diff" |
+      sed -n '/^`\?=== commit header ===`\?/,/^`\?=== commit footer ===`\?/p' |
+      sed '1d;$d')
   fi
 
-  # Extract content between message markers
-  local extracted_msg
-  extracted_msg=$(echo "$after_diff" | \
-    sed -n '/^=== commit header ===/,/^=== commit footer ===/p' | \
-    sed '1d;$d')
+  # Format 2: If not found, try markdown code blocks (```text, ```yaml, or plain ```)
+  # shellcheck disable=SC2016
+  if [[ -z "$extracted_msg" ]] && echo "$after_diff" | grep -qE '^```(text|yaml)?$'; then
+    extracted_msg=$(echo "$after_diff" |
+      sed -nE '/^```(text|yaml)?$/,/^```$/p' |
+      sed '1d;$d')
+  fi
 
-  # Validate extracted message is not empty
+  # If still not found, report error
   if [[ -z "$extracted_msg" ]]; then
-    echo "Error: extracted commit message is empty" >&2
+    echo "Error: commit message not found in AI output" >&2
+    echo 'Expected format: either === commit header === markers or ```text code blocks' >&2
+    echo "Debug output:" >&2
+    echo "$full_output" >&2
     return 1
   fi
 
@@ -373,27 +388,23 @@ generate_commit_message() {
 # @description Output commit message to stdout or write to file
 # Handles both interactive (stdout) and Git hook (file) output modes
 # @arg $1 string Commit message content
-# @arg $2 string Optional output file path (default: GIT_COMMIT_MSG)
 # @return 0 Always succeeds
-# @stdout Commit message (if FLAG_OUTPUT_TO_STDOUT is true)
+# @stdout Commit message (if OUTPUT_FILE is empty)
 # @stderr Status message (if outputting to file)
-# @global FLAG_OUTPUT_TO_STDOUT Determines output mode
-# @global GIT_COMMIT_MSG Default output file path
+# @global OUTPUT_FILE Output file path (empty means stdout)
 # @example
 #   output_commit_message "$commit_msg"
-#   output_commit_message "$commit_msg" ".git/COMMIT_EDITMSG"
 output_commit_message() {
   local commit_msg="$1"
-  local output_file="${2:-$GIT_COMMIT_MSG}"
 
-  if [[ "$FLAG_OUTPUT_TO_STDOUT" == true ]]; then
+  if [[ -z "$OUTPUT_FILE" ]]; then
     # Output to stdout (interactive mode)
     echo "$commit_msg"
   else
     # Write to file (Git hook mode)
-    rm -f "${output_file}"
-    echo "${commit_msg}" > "${output_file}"
-    echo "[OK] Commit message written to $output_file" >&2
+    rm -f "${OUTPUT_FILE}"
+    echo "${commit_msg}" >"${OUTPUT_FILE}"
+    echo "[OK] Commit message written to $OUTPUT_FILE" >&2
   fi
 }
 
@@ -409,8 +420,8 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 
   # Check for existing message in Git buffer mode
   # Skip generation if commit message was previously generated
-  if [[ "$FLAG_OUTPUT_TO_STDOUT" == false && -f "$GIT_COMMIT_MSG" ]]; then
-    if has_existing_message "$GIT_COMMIT_MSG"; then
+  if [[ -n "$OUTPUT_FILE" && -f "$OUTPUT_FILE" ]]; then
+    if has_existing_message "$OUTPUT_FILE"; then
       echo "[OK] Detected existing Git-generated commit message. Skipping generation." >&2
       exit 0
     fi
