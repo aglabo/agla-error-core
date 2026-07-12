@@ -1,7 +1,7 @@
 # src: ./configs/textlintrc.yaml
 # @(#) : textlint configuration for Japanese text linting
 #
-# Copyright (c) 2025 atsushifx <https://github.com/atsushifx>
+# Copyright (c) 2025- atsushifx <https://github.com/atsushifx>
 #
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
@@ -24,6 +24,7 @@ rules:
       "preferInBody": "ですます",
       "preferInList": "",
     }
+    no-exclamation-question-mark: false
     ja-no-mixed-period:
       allowPeriodMarks:
         - ":"
@@ -35,7 +36,6 @@ rules:
       space:
         - alphabets
         - numbers
-  ja-hiraku: true
   common-misspellings: true
   no-mixed-zenkaku-and-hankaku-alphabet: true
   "@proofdict/proofdict":
