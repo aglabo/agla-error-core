@@ -6,14 +6,23 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-## ShellSpec Configuration
-## Project-wide settings for shell script testing
+# ============================================================================
+# ShellSpec Configuration
+# ============================================================================
+# This file marks the project root and contains all ShellSpec options.
+# Automatically loaded by ShellSpec.
+#
+# See: https://github.com/shellspec/shellspec
+# ============================================================================
+
+# === Base Configuration ===
+# Core testing setup: helpers, sandbox, and example handling
 
 # Set shell to bash
 --shell bash
 
 # Specify spec directory
---default-path "scripts/__tests__"
+--default-path "."
 
 # Spec file pattern (match .spec.sh instead of _spec.sh)
 --pattern "*.spec.sh"
@@ -25,18 +34,19 @@
 # --profile
 --profile-limit=10
 
-# Show failure messages in detail
- --fail-fast=1
-
 # Set formatter (default: progress, options: documentation, tap, junit)
 --format documentation
+
+# Fail if no examples found (prevent silent failures)
+--fail-no-examples
 
 # Coverage settings (requires kcov)
 # --kcov
 # --kcov-options "--exclude-pattern=/usr"
 
 # Execution options
---jobs 32
+# @note: use in Windows is dangerous.
+--jobs 4
 
 # --random none
 
