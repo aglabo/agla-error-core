@@ -21,10 +21,6 @@ tab_width = 2
 
 # ─────────────────────────────
 # Exclude directories/files
-<<<<<<< HEAD
-||||||| parent of 115e9fd (merge (#58): config: update CI and project tooling configuration)
-# Documents
-=======
 # ─────────────────────────────
 [**/node_modules/*]
 ignore = true
