@@ -3,4 +3,9 @@
 packages:
   - packages/**
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
+
+# security: force patched transitive versions (Dependabot #38, #44)
+overrides:
+  postcss: ^8.5.26
+  esbuild: ^0.28.2

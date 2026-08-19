@@ -33,4 +33,4 @@ commit-msg:
   parallel: true
   commands:
     commitlint:
-      run: commitlint --config ./configs/commitlint.config.js --edit
+      run: commitlint --config ./configs/commitlint.config.mjs --edit

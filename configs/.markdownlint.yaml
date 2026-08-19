@@ -15,16 +15,20 @@ default: true
 whitespace: true
 
 # heading
-no-duplicate-heading: true
-siblings_only: true # allow duplicate headings if they are not siblings
+no-duplicate-heading:
+  siblings_only: true # allow duplicate headings if they are not siblings
 
 # line length
 line-length:
   line_length: 120
   code_block_line_length: 120
+  tables: false # tables cannot be wrapped; exclude them from the line length check
 
 # list item
 ol-prefix: true
+
+# html
+no-inline-html: false
 
 # styles
 emphasis-style:

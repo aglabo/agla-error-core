@@ -2,6 +2,7 @@
   "name": "@aglabo/agla-error-monorepo",
   "_comment": "@(#) : Standardized error handling library for @aglabo ecosystem",
   "private": true,
+  "type": "module",
   "description": "Monorepo for @aglabo packages including agla-error-core",
   "author": "atsushifx <https://github.com/atsushifx>",
   "license": "MIT",
@@ -9,7 +10,6 @@
     "type": "git",
     "url": "https://github.com/aglabo/agla-error-core.git"
   },
-  "type": "module",
   "keywords": [
     "error-handling",
     "severity",
@@ -22,7 +22,7 @@
   ],
   "packageManager": "pnpm@11.22.0",
   "engines": {
-    "node": ">=22",
+    "node": ">=24",
     "pnpm": ">=11"
   },
   "workspaces": [
