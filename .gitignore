@@ -45,18 +45,16 @@ $~*
 releases/*
 !releases/.keep
 
-##  Git
-!**/.gitignore
 
 ## Development tools (installed locally)
 .tools/
 
+## beads
+.beads/*
+
 ## Worktrees
 # worktree base dir
 .worktrees/
-
-## Coverage
-coverage*/
 
 ## AI generated files
 
@@ -101,16 +99,8 @@ tmp/
 !.vscode/cspell*
 
 ## Node
+.pnpm-store/
 node_modules/
 
-## beads
-.beads/*
+##  Git
 !**/.gitignore
-!.beads/config.yaml
-!.beads/issues.jsonl
-
-
-# Beads / Dolt files (added by bd init)
-.dolt/
-*.db
-.beads-credential-key
