@@ -51,7 +51,7 @@
   },
   "scripts": {
     "prepare": "bash scripts/setup-dev-env.sh",
-    "clean": "pnpm -r exec rimraf dist module lib .cache",
+    "remove": "pnpm -r exec rimraf dist module lib .cache",
     "release:changeset": "pnpm exec changeset",
     "release:version": "pnpm exec changeset version",
     "release:publish": "pnpm publish -r --report-summary --access public",

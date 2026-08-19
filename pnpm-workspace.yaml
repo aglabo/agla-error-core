@@ -4,6 +4,7 @@ packages:
   - packages/**
 allowBuilds:
   esbuild: true
+  unrs-resolver: set this to true or false
 
 # security: force patched transitive versions (Dependabot #38, #44)
 overrides:
