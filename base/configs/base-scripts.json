@@ -3,7 +3,9 @@
   "scripts": {
     "prepublishOnly": "pnpm exec tsup --config ./configs/tsup.config.ts",
     "build": "pnpm exec tsup --config ./configs/tsup.config.ts",
-    "clean": "pnpm rimraf dist module .cache",
+    "clean:all": "pnpm run clean:build && pnpm run clean:cache",
+    "clean:build": "pnpm exec rimraf dist module lib",
+    "clean:cache": "pnpm exec rimraf .cache",
     "format:dprint": "dprint fmt",
     "check:dprint": "dprint check",
     "check:types": "tsc --noEmit --incremental",
