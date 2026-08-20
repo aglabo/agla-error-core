@@ -13,14 +13,14 @@ description: @aglaboエコシステムのための標準化されたエラーハ
 
 @aglabo エコシステムのための標準化されたエラーハンドリングコアモジュール。
 
-`@aglabo/agla-error-core`は、構造化されたエラーハンドリングを提供するライブラリです。
+`@aglabo/agla-error-core` は、構造化されたエラーハンドリングを提供するライブラリです。
 エラーコード、重要度レベル、コンテキスト情報を持つ統一的なエラー処理を可能にします。
 
 ## 機能
 
-- **構造化されたエラーハンドリング** - `AglaError`クラスによる一貫したエラー表現
-- **重要度レベル** - `FATAL`、`ERROR`、`WARNING`、`INFO`の 4段階
-- **エラーチェーン** - ES2022 `Error.cause`を使用したエラー連鎖
+- **構造化されたエラーハンドリング** - `AglaError` クラスによる一貫したエラー表現
+- **重要度レベル** - `FATAL`、`ERROR`、`WARNING`、`INFO` の 4段階
+- **エラーチェーン** - ES2022 `Error.cause` を使用したエラー連鎖
 - **クロスランタイムサポート** - Node.js、Deno、Bun に対応
 - **TypeScript First** - 完全な型安全性
 - **ゼロ依存** - 外部依存なし
@@ -210,13 +210,13 @@ const AG_ERROR_SEVERITY = {
 
 ## ライセンス
 
-MIT ライセンス - 詳細は[LICENSE](./LICENSE)を参照してください。
+MIT ライセンス - 詳細は [LICENSE](./LICENSE) を参照してください。
 
 ## 貢献
 
-バグ報告や機能リクエストは[Issues](https://github.com/aglabo/agla-error-core/issues)で受け付けています。
+バグ報告や機能リクエストは [Issues](https://github.com/aglabo/agla-error-core/issues) で受け付けています。
 
-プルリクエストも歓迎します。詳細は[CONTRIBUTING.md](./CONTRIBUTING.md)を参照してください。
+プルリクエストも歓迎します。詳細は [CONTRIBUTING.md](./CONTRIBUTING.md) を参照してください。
 
 ## リンク
 
